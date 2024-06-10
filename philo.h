@@ -6,20 +6,15 @@
 # include <stdlib.h>
 # include <pthread.h>
 # include <sys/time.h>
-# include "ft_printf/ft_printf.h"
 /*** status ***/
-# define EATING		1
-# define SLEEPING	2
-# define THINKING	3
-# define FORK		4
-# define DIE		5
+enum e_status { e_eating, e_sleep, e_think, e_fork, e_dead };
 
 typedef struct s_stats
 {
-	size_t	philo_num;
-	size_t	ttd; // time to die
-	size_t	tte; // time to eat
-	size_t	tts; // time to sleep
+	int		philo_num;
+	suseconds_t		ttd; // time to die
+	suseconds_t		tte; // time to eat
+	suseconds_t		tts; // time to sleep
 } t_stats;
 
 typedef struct s_philo
@@ -33,6 +28,10 @@ typedef struct s_philo
 } t_philo;
 
 t_philo	*init_philo(char **argv);
+void create_threads(t_philo *philo);
+void	*start_routine(void *arg);
+void	print_action(t_philo *philo, size_t time);
+int	try_eat(t_philo *philo);
 int	ft_atoi(const char *str);
 
 #endif

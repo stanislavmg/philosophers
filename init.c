@@ -14,25 +14,26 @@ t_philo	*init_philo(char **argv)
 	int	i;
 	int	num;
 	t_philo	*philo;
-	pthread_mutex_t *fork;
+	pthread_mutex_t *forks;
 
 	i = -1;
-	num = ft_atoi(argv[i]);
+	num = ft_atoi(argv[1]);
 	philo = (t_philo *)malloc(sizeof(t_philo) * num);
-	fork = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * num);
-	if (!philo || !fork)
+	forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * num);
+	if (!philo || !forks)
 		return (NULL);
 	init_stats(&philo->stats, argv);
-	while (++i < philo->stats.philo_num)
+	while (i < philo->stats.philo_num)
 	{
 		philo[i].eat_count = 0;
-		philo[i].index = i;
+		philo[i].index = i + 1;
 		if (!i)
-			philo[i].left = &fork[num - 1];
+			philo[i].left = &forks[num - 1];
 		else
-			philo[i].left = &fork[i - 1];
-		philo[i].right = &fork[i];
+			philo[i].left = &forks[i - 1];
+		philo[i].right = &forks[i];
 		philo[i].status = 0;
+		i++;
 	}
 	return (philo);
 }
@@ -40,12 +41,13 @@ t_philo	*init_philo(char **argv)
 void create_threads(t_philo *philo)
 {
 	int	i;
+	void *status;
 	pthread_t	*th;
-	pthread_mutex_t *mt;
 
 	i = -1;
+
 	th = (pthread_t *)malloc(sizeof(pthread_t) * philo->stats.philo_num);
-	if (!th || !mt)
+	if (!th)
 		return ;
 	while (++i < philo->stats.philo_num)
 	{
@@ -54,58 +56,102 @@ void create_threads(t_philo *philo)
 	}
 	i = -1;
 	while (++i < philo->stats.philo_num)
-		pthread_join(th + i, NULL);
+	{
+		pthread_join(th[i], &status);
+		if (!status)
+			exit(EXIT_FAILURE);
+	}
 }
 
-void	*start_routine(t_philo *philo)
+void	*start_routine(void *arg)
 {
-	while (philo->status != DIE)
+	t_philo			*philo;
+	struct timeval	start;
+	struct timeval	end;
+	
+	philo = (t_philo *)arg;
+	while (1)
 	{
-		if ()
+		philo->status = e_think;
+		gettimeofday(&start, NULL);
+		gettimeofday(&end, NULL);
+		print_action(philo, start.tv_usec);
+		if ((end.tv_usec - start.tv_usec) > philo->stats.ttd)
+		{
+			philo->status = e_dead;
+			print_action(philo, end.tv_usec);
+			break ;
+		}
+		if (try_eat(philo))
+			continue ;
+		gettimeofday(&start, NULL);
+		print_action(philo, start.tv_usec);
+		usleep(philo->stats.tts);
 	}
 	return (NULL);
 }
 
-int	eating(t_philo *philo)
+int	try_eat(t_philo *philo)
 {
-	pthread_mutex_lock(philo->left);
-	philo->status = FORK;
-	print_action(philo, );
-	pthread_mutex_lock(philo->right);
-
-}
-
-int	check_neighbour(t_philo *philo)
-{
-
+	struct timeval start;
+	
+	if (philo->index == 1)
+	{
+		if (pthread_mutex_lock(philo->right))
+			return (1);	
+		if (pthread_mutex_lock(philo->left))
+		{
+			pthread_mutex_unlock(philo->right);
+			return (1);
+		}
+	}
+	else
+	{
+		if (pthread_mutex_lock(philo->left))
+			return (1);
+		if (pthread_mutex_lock(philo->right))
+		{
+			pthread_mutex_unlock(philo->left);
+			return (1);
+		}
+	}
+	gettimeofday(&start, NULL);
+	philo->status = e_fork;
+	print_action(philo, start.tv_usec);
+	gettimeofday(&start, NULL);
+	print_action(philo, start.tv_usec);
+	philo->status = e_eating;
+	gettimeofday(&start, NULL);
+	print_action(philo, start.tv_usec);
+	usleep(philo->stats.tte);
+	pthread_mutex_unlock(philo->left);
+	pthread_mutex_unlock(philo->right);
+	philo->status = e_sleep;
 	return (0);
 }
 
-void	print_action(t_philo *philo, time_t time)
+void	print_action(t_philo *philo, size_t time)
 {
-	if (DIE == philo->status)
+	if (e_dead == philo->status)
 	{
-		printf("%d %d died\n", (int)time, philo->index);
-		interrupt_philo();// TODO
+		printf("%lu %d die\n", time, philo->index);
 	}
-	else if (EATING == philo->status)
+	else if (e_eating == philo->status)
 	{
-		printf("%d %d is eating\n", (int)time, philo->index);
+		printf("%lu %d is eating\n", time, philo->index);
 		usleep(philo->stats.tte);
 	}
-	else if (SLEEPING == philo->status)
+	else if (e_sleep == philo->status)
 	{
-		printf("%d %d is sleeping\n", (int)time, philo->index);
+		printf("%lu %d is sleep\n", time, philo->index);
 		usleep(philo->stats.tts);
 	}
-	else if (FORK == philo->status)
+	else if (e_fork == philo->status)
 	{
-		printf("%d %d has taken a fork\n", (int)time, philo->index);
+		printf("%lu %d has taken a fork\n", time, philo->index);
 	}
-	else if (THINKING == philo->status)
+	else if (e_think == philo->status)
 	{
-		printf("%d %d is thinking\n", (int)time, philo->index);
-		
+		printf("%lu %d is thinking\n", time, philo->index);
 	}
-
 }
