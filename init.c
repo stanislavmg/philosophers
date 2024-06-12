@@ -6,6 +6,8 @@ static int	init_stats(t_stats *stats, char **argv)
 	stats->ttd = ft_atoi(argv[2]);
 	stats->tte = ft_atoi(argv[3]);
 	stats->tts = ft_atoi(argv[4]);
+	stats->eat_limit = 0;
+	printf("ttd = %ld\ntte = %ld\ntts = %ld\n", stats->ttd, stats->tte, stats->tts);
 	return (0);
 }
 
@@ -14,25 +16,33 @@ t_philo	*init_philo(char **argv)
 	int	i;
 	int	num;
 	t_philo	*philo;
+	t_stats *st;
 	pthread_mutex_t *forks;
 
 	i = -1;
 	num = ft_atoi(argv[1]);
 	philo = (t_philo *)malloc(sizeof(t_philo) * num);
 	forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * num);
-	if (!philo || !forks)
+	st = (t_stats *)malloc(sizeof(t_stats));
+	if (!philo || !forks || !st)
 		return (NULL);
-	init_stats(&philo->stats, argv);
-	while (i < philo->stats.philo_num)
+	init_stats(st, argv);
+	while (i < num)
 	{
+		pthread_mutex_init(forks + i, NULL);
 		philo[i].eat_count = 0;
 		philo[i].index = i + 1;
-		if (!i)
-			philo[i].left = &forks[num - 1];
-		else
-			philo[i].left = &forks[i - 1];
-		philo[i].right = &forks[i];
 		philo[i].status = 0;
+		philo[i].stats = st;
+		if (i + 1 == num)
+		{
+			philo[i].left = &forks[i];
+			philo[i].right = &forks[0];
+			break ;
+		}
+		else
+			philo[i].left = &forks[i + 1];
+		philo[i].right = &forks[i];
 		i++;
 	}
 	return (philo);
@@ -46,112 +56,92 @@ void create_threads(t_philo *philo)
 
 	i = -1;
 
-	th = (pthread_t *)malloc(sizeof(pthread_t) * philo->stats.philo_num);
+	th = (pthread_t *)malloc(sizeof(pthread_t) * philo->stats->philo_num);
 	if (!th)
 		return ;
-	while (++i < philo->stats.philo_num)
+	while (++i < philo->stats->philo_num)
 	{
 		if(pthread_create(th + i, NULL, start_routine, philo + i))
 			return ;
 	}
 	i = -1;
-	while (++i < philo->stats.philo_num)
+	while (++i < philo->stats->philo_num)
 	{
 		pthread_join(th[i], &status);
-		if (!status)
-			exit(EXIT_FAILURE);
 	}
 }
 
 void	*start_routine(void *arg)
 {
 	t_philo			*philo;
-	struct timeval	start;
-	struct timeval	end;
 	
 	philo = (t_philo *)arg;
 	while (1)
 	{
-		philo->status = e_think;
-		gettimeofday(&start, NULL);
-		gettimeofday(&end, NULL);
-		print_action(philo, start.tv_usec);
-		if ((end.tv_usec - start.tv_usec) > philo->stats.ttd)
-		{
-			philo->status = e_dead;
-			print_action(philo, end.tv_usec);
-			break ;
-		}
 		if (try_eat(philo))
-			continue ;
-		gettimeofday(&start, NULL);
-		print_action(philo, start.tv_usec);
-		usleep(philo->stats.tts);
+			break ;
+		print_action(SLEEP, philo->index, philo->stats);
+		print_action(THINK, philo->index, philo->stats);
 	}
 	return (NULL);
 }
 
 int	try_eat(t_philo *philo)
 {
-	struct timeval start;
-	
-	if (philo->index == 1)
+	struct timeval	end;
+	struct timeval	start;
+
+	gettimeofday(&start, NULL);
+	pthread_mutex_lock(philo->left);
+	gettimeofday(&end, NULL);
+	if (cmp_time(start, end, philo->stats->ttd))
 	{
-		if (pthread_mutex_lock(philo->right))
-			return (1);	
-		if (pthread_mutex_lock(philo->left))
-		{
-			pthread_mutex_unlock(philo->right);
-			return (1);
-		}
+		pthread_mutex_unlock(philo->left);
+		print_action(DEAD, philo->index, philo->stats);
+		return (1);
 	}
-	else
+	print_action(FORK, philo->index, philo->stats);
+	pthread_mutex_lock(philo->right);
+	gettimeofday(&end, NULL);
+	if (cmp_time(start, end, philo->stats->ttd))
 	{
-		if (pthread_mutex_lock(philo->left))
-			return (1);
-		if (pthread_mutex_lock(philo->right))
-		{
-			pthread_mutex_unlock(philo->left);
-			return (1);
-		}
+		pthread_mutex_unlock(philo->right);
+		pthread_mutex_unlock(philo->left);
+		print_action(DEAD, philo->index, philo->stats);
+		return (1);
 	}
-	gettimeofday(&start, NULL);
-	philo->status = e_fork;
-	print_action(philo, start.tv_usec);
-	gettimeofday(&start, NULL);
-	print_action(philo, start.tv_usec);
-	philo->status = e_eating;
-	gettimeofday(&start, NULL);
-	print_action(philo, start.tv_usec);
-	usleep(philo->stats.tte);
-	pthread_mutex_unlock(philo->left);
+	print_action(FORK, philo->index, philo->stats);
+	print_action(EATING, philo->index, philo->stats);
 	pthread_mutex_unlock(philo->right);
-	philo->status = e_sleep;
+	pthread_mutex_unlock(philo->left);
 	return (0);
 }
 
-void	print_action(t_philo *philo, size_t time)
+int cmp_time(struct timeval start, struct timeval end, suseconds_t limit)
 {
-	if (e_dead == philo->status)
+	printf("result = %ld limit = %ld\n", ((end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000), limit);
+	return (limit < ((end.tv_sec - start.tv_sec) * 1000 + (end.tv_usec - start.tv_usec) / 1000));
+}
+
+void	print_action(int status, int index, const t_stats *stats)
+{
+	struct timeval t;
+	
+	gettimeofday(&t, NULL);
+	if (DEAD == status)
+		printf("%ld %d ++++++++++++++++DIE++++++++++++++++\n", IN_MILISEC(t.tv_usec), index);
+	else if (EATING == status)
 	{
-		printf("%lu %d die\n", time, philo->index);
+		printf("%ld %d is eating\n", IN_MILISEC(t.tv_usec), index);
+		usleep(IN_MICROSEC(stats->tte));
 	}
-	else if (e_eating == philo->status)
+	else if (SLEEP == status)
 	{
-		printf("%lu %d is eating\n", time, philo->index);
-		usleep(philo->stats.tte);
+		printf("%ld %d is sleep\n", IN_MILISEC(t.tv_usec), index);
+		usleep(IN_MICROSEC(stats->tts));
 	}
-	else if (e_sleep == philo->status)
-	{
-		printf("%lu %d is sleep\n", time, philo->index);
-		usleep(philo->stats.tts);
-	}
-	else if (e_fork == philo->status)
-	{
-		printf("%lu %d has taken a fork\n", time, philo->index);
-	}
-	else if (e_think == philo->status)
-	{
-		printf("%lu %d is thinking\n", time, philo->index);
-	}
+	else if (FORK == status)
+		printf("%ld %d has taken a fork\n", IN_MILISEC(t.tv_usec), index);
+	else if (THINK == status)
+		printf("%ld %d is thinking\n", IN_MILISEC(t.tv_usec), index);
 }
