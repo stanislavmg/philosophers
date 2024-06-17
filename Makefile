@@ -1,7 +1,7 @@
 NAME = philo
 INCLUDE = philo.h
 CFLAGS = -Wall -Wextra -Werror -g3
-SRC = main.c init.c string.c utils.c
+SRC = main.c init.c string.c utils.c monitor.c thread_work.c
 OBJ = $(SRC:%.c=%.o)
 
 all: $(NAME)
