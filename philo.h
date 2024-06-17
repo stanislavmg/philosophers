@@ -2,6 +2,12 @@
 # define PHILO_H
 # define IN_MILISEC(time) (time / 1000)
 # define IN_MICROSEC(time) (time * 1000)
+/* ERROR CODES */
+# define ERR_STATS	-1
+# define ERR_MUTEX	-2
+# define ERR_MALLOC	-3
+# define ERR_THREAD	-4
+# define UNDEFINED	-102
 
 # include <stdio.h>
 # include <unistd.h>
@@ -22,6 +28,7 @@ typedef struct s_stats
 
 typedef struct s_philo
 {
+	pthread_mutex_t	*lock;
 	int				index;
 	int				eat_count;
 	int				status;
@@ -30,12 +37,14 @@ typedef struct s_philo
 	const t_stats	*stats;
 } t_philo;
 
-int 	cmp_time(struct timeval start, struct timeval end, suseconds_t limit);
-t_philo	*init_philo(char **argv);
-void 	create_threads(t_philo *philo);
+int	init(char **argv, t_philo **philo, pthread_mutex_t *forks);
+int 	create_threads(t_philo *philo, pthread_mutex_t *forks);
 void	*start_routine(void *arg);
-void	print_action(int status, int index, const t_stats *stats);
-int		try_eat(t_philo *philo);
 int		ft_atoi(const char *str);
+void	ft_putstr_fd(const char *s, int fd);
+void	free_philo(t_philo *philo, pthread_mutex_t *forks, pthread_t *th);
+int		check_stats(t_stats *stats);
+void	*monitoring(void *arg);
+int	 	valid_args(int argc, char **argv);
 
 #endif
