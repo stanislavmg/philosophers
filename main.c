@@ -11,7 +11,7 @@ int main(int argc, char **argv)
 	forks = NULL;
 	if (valid_args(argc, argv))
 		return (1);
-	err = init(argv, &philo, forks);
+	err = init(argv, &philo, &forks);
 	if (err)
 		printf("%d\n", err);
 	if (!philo)

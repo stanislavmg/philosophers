@@ -51,14 +51,20 @@ static t_philo	*init_philo(t_stats *st, pthread_mutex_t *forks)
 
 	i = 0;
 	philo = (t_philo *)malloc(sizeof(t_philo) * st->philo_num);
+	philo->exp = (int *)malloc(sizeof(int));
+	*philo->exp = 0;
 	if (!philo)
 		return (NULL);
 	while (i < st->philo_num)
 	{
+		philo[i].lock = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+		pthread_mutex_init(philo[i].lock, NULL);
 		philo[i].eat_count = 0;
 		philo[i].index = i + 1;
 		philo[i].status = 0;
 		philo[i].stats = st;
+		philo[i].exp = philo->exp;
+		philo[i].timestamp = 0;
 		if ((i + 1) % 2 == 0)
 		{
 			philo[i].left = &forks[i];
@@ -79,7 +85,7 @@ static t_philo	*init_philo(t_stats *st, pthread_mutex_t *forks)
 	return (philo);	
 }
 
-int	init(char **argv, t_philo **philo, pthread_mutex_t *forks)
+int	init(char **argv, t_philo **philo, pthread_mutex_t **forks)
 {
 	t_stats 		*st;
 
@@ -87,10 +93,10 @@ int	init(char **argv, t_philo **philo, pthread_mutex_t *forks)
 	st = init_stats(argv);
 	if (!st)
 		return (ERR_STATS);
-	forks = forks_init(st->philo_num);
+	*forks = forks_init(st->philo_num);
 	if (!forks)
 		return (ERR_MUTEX);
-	*philo = init_philo(st, forks);
+	*philo = init_philo(st, *forks);
 	if (!philo)
 		return (ERR_MALLOC);
 	return (0);
@@ -101,24 +107,33 @@ int create_threads(t_philo *philo, pthread_mutex_t *forks)
 	int			i;
 	void 		*status;
 	pthread_t	*th;
+	//suseconds_t	delay;
 
 	i = 0;
+	//delay = philo->stats->tts + philo->stats->tte;
 	th = (pthread_t *)malloc(sizeof(pthread_t) * philo->stats->philo_num + 1);
 	if (!th)
 		return (ERR_MALLOC);
-	if(pthread_create(th + i, NULL, monitoring, philo + i))
+	if(pthread_create(th + i, NULL, monitoring, philo))
 		return (ERR_THREAD);
-	while (++i < philo->stats->philo_num)
+	while (++i < philo->stats->philo_num + 1)
 	{
-		if(pthread_create(th + i, NULL, start_routine, philo + i))
-			return (ERR_THREAD);
-		if (pthread_detach(th[i]))
+		printf("Philosopher #%d start work\n", philo[i - 1].index);
+		if(pthread_create(th + i, NULL, start_routine, philo + i - 1))
 			return (ERR_THREAD);
 	}
 	pthread_join(th[0], &status);
 	if (!status)
-		exit(1); //TODO
-	free_philo(philo, forks, th);
+	{
+		i = 0;
+		while (++i < philo->stats->philo_num + 1)
+			pthread_join(th[i], &status);
+		//usleep(IN_MICROSEC(delay));
+		printf("\n\nMain is over!\n\n");
+		//free_philo(philo, forks, th);
+		exit(1);
+	}
+	(void)forks;
 	return (0);
 }
 

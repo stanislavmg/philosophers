@@ -51,9 +51,12 @@ void free_philo(t_philo *philo, pthread_mutex_t *forks, pthread_t *th)
 
 	i = -1;
 	while (++i < philo->stats->philo_num)
+	{
+		pthread_mutex_destroy(philo[i].lock);
 		pthread_mutex_destroy(forks + i);
+	}
 	free(forks);
 	free(th);
-	free((void *)philo->stats);
+	free(philo->stats);
 	free(philo);
 }

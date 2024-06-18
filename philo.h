@@ -30,20 +30,21 @@ typedef struct s_philo
 {
 	pthread_mutex_t	*lock;
 	int				index;
+	int				*exp;
 	int				eat_count;
 	int				status;
+	size_t			timestamp;
 	pthread_mutex_t	*left;
 	pthread_mutex_t	*right;
-	const t_stats	*stats;
+	t_stats	*stats;
 } t_philo;
 
-int	init(char **argv, t_philo **philo, pthread_mutex_t *forks);
+int		init(char **argv, t_philo **philo, pthread_mutex_t **forks);
 int 	create_threads(t_philo *philo, pthread_mutex_t *forks);
 void	*start_routine(void *arg);
 int		ft_atoi(const char *str);
 void	ft_putstr_fd(const char *s, int fd);
 void	free_philo(t_philo *philo, pthread_mutex_t *forks, pthread_t *th);
-int		check_stats(t_stats *stats);
 void	*monitoring(void *arg);
 int	 	valid_args(int argc, char **argv);
 
