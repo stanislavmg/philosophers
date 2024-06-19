@@ -60,7 +60,7 @@ static t_philo	*init_philo(t_stats *st, pthread_mutex_t *forks)
 		philo[i].lock_write = philo->lock_write;
 		philo[i].index = i + 1;
 		philo[i].lastmeal = 0;
-		philo[i].status = 0;
+		philo[i].status = THINK;
 		philo[i].stats = st;
 		philo[i].exp = philo->exp;
 		philo[i].timestamp = 0;
