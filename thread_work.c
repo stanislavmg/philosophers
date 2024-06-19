@@ -1,71 +1,63 @@
 #include "philo.h"
 static void	print_action(int status, t_philo *philo)
 {
-	struct timeval t;
-	
-	gettimeofday(&t, NULL);
-	if (*philo->exp)
-		return ;
+	pthread_mutex_lock(philo->lock_write);
 	if (DEAD == status)
 	{
-		//pthread_mutex_lock(philo->lock);
-		printf("%ld %d died\n", philo->timestamp, philo->index);
+		printf("%ld %d died\n", gettime(1) - philo->timestamp, philo->index);
 		philo->status = DEAD;
-		//pthread_mutex_unlock(philo->lock);
 	}
 	else if (EATING == status)
 	{
-		printf("%ld %d is eating\n", philo->timestamp, philo->index);
+		printf("%ld %d is eating\n", gettime(1) - philo->timestamp, philo->index);
+		pthread_mutex_unlock(philo->lock_write);
 		philo->eat_count++;
+		philo->lastmeal = gettime(1);
 		usleep(IN_MICROSEC(philo->stats->tte));
-		philo->timestamp += philo->stats->tte;
+		return ;
 	}
 	else if (SLEEP == status)
 	{
-		printf("%ld %d is sleep\n", philo->timestamp, philo->index);
+		printf("%ld %d is sleep\n", gettime(1) - philo->timestamp, philo->index);
+		pthread_mutex_unlock(philo->lock_write);
 		usleep(IN_MICROSEC(philo->stats->tts));
-		philo->timestamp += philo->stats->tts;
+		return ;
 	}
 	else if (FORK == status)
 	{
-		printf("%ld %d has taken a fork\n", philo->timestamp, philo->index);
+		printf("%ld %d has taken a fork\n", gettime(1) - philo->timestamp, philo->index);
 	}
 	else if (THINK == status)
 	{
-		printf("%ld %d is thinking\n", philo->timestamp, philo->index);
+		printf("%ld %d is thinking\n", gettime(1) - philo->timestamp, philo->index);
 	}
+	pthread_mutex_unlock(philo->lock_write);
 }
 
-static int cmp_time(struct timeval *start, struct timeval *end, suseconds_t *limit)
+static int cmp_time(t_philo * philo)
 {
-	return (*limit <= ((end->tv_sec - start->tv_sec) * 1000 + (end->tv_usec - start->tv_usec) / 1000));
+	printf("difference = %li\n", gettime(1) - philo->lastmeal);
+	return (philo->stats->ttd < (gettime(1) - philo->lastmeal));
 }
 
-static int	try_eat(t_philo *philo, struct timeval *start)
+static int	try_eat(t_philo *philo)
 {
-	struct timeval	end;
-
-	printf("Philosopher #%d try to get fork\n", philo->index);
 	pthread_mutex_lock(philo->left);
-	gettimeofday(&end, NULL);
-	if (cmp_time(start, &end, &philo->stats->ttd))
+	if (cmp_time(philo))
 	{
 		pthread_mutex_unlock(philo->left);
 		print_action(DEAD, philo);
 		return (1);
 	}
-	philo->timestamp += ((end.tv_sec - start->tv_sec) * 1000 + (end.tv_usec - start->tv_usec) / 1000);
 	print_action(FORK, philo);
 	pthread_mutex_lock(philo->right);
-	gettimeofday(&end, NULL);
-	if (cmp_time(start, &end, &philo->stats->ttd))
+	if (cmp_time(philo))
 	{
 		pthread_mutex_unlock(philo->left);
 		pthread_mutex_unlock(philo->right);
 		print_action(DEAD, philo);
 		return (1);
 	}
-	philo->timestamp += ((end.tv_sec - start->tv_sec) * 1000 + (end.tv_usec - start->tv_usec) / 1000);
 	print_action(FORK, philo);
 	print_action(EATING, philo);
 	pthread_mutex_unlock(philo->left);
@@ -76,18 +68,13 @@ static int	try_eat(t_philo *philo, struct timeval *start)
 void	*start_routine(void *arg)
 {
 	t_philo	*philo;
-	struct timeval	end;
-	struct timeval	start;
 
 	philo = (t_philo *)arg;
-	//pthread_mutex_lock(philo->lock);
-	gettimeofday(&start, NULL);
-	//pthread_mutex_unlock(philo->lock);
+	pthread_mutex_lock(philo->lock);
+	pthread_mutex_unlock(philo->lock);
 	while (1)
 	{
-		gettimeofday(&end, NULL);
-		pthread_mutex_lock(philo->lock);
-		if (cmp_time(&start, &end, &philo->stats->ttd))
+		if (cmp_time(philo))
 			philo->status = DEAD;
 		if (philo->status == DEAD)
 		{
@@ -95,13 +82,11 @@ void	*start_routine(void *arg)
 			pthread_mutex_unlock(philo->lock);
 			break ;
 		}
-		pthread_mutex_unlock(philo->lock);
-		if (try_eat(philo, &start))
+		if (try_eat(philo))
 		{
 			printf("Philosopher #%d is over woriking\n", philo->index);
 			break ;
 		}
-		gettimeofday(&start, NULL);
 		print_action(SLEEP, philo);
 		print_action(THINK, philo);
 	}

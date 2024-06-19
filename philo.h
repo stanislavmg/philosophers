@@ -29,10 +29,12 @@ typedef struct s_stats
 typedef struct s_philo
 {
 	pthread_mutex_t	*lock;
+	pthread_mutex_t	*lock_write;
 	int				index;
 	int				*exp;
 	int				eat_count;
 	int				status;
+	long			lastmeal;
 	size_t			timestamp;
 	pthread_mutex_t	*left;
 	pthread_mutex_t	*right;
@@ -47,5 +49,6 @@ void	ft_putstr_fd(const char *s, int fd);
 void	free_philo(t_philo *philo, pthread_mutex_t *forks, pthread_t *th);
 void	*monitoring(void *arg);
 int	 	valid_args(int argc, char **argv);
+long gettime(int type);
 
 #endif
