@@ -15,7 +15,7 @@
 # include <pthread.h>
 # include <sys/time.h>
 
-enum e_status { EATING, SLEEP, THINK, FORK, DEAD };
+enum e_status { EATING, SLEEP, THINK, FORK, DEAD, STOP };
 
 typedef struct s_stats
 {
@@ -31,14 +31,13 @@ typedef struct s_philo
 	pthread_mutex_t	*lock;
 	pthread_mutex_t	*lock_write;
 	int				index;
-	int				*exp;
 	int				eat_count;
 	int				status;
 	long			lastmeal;
 	size_t			timestamp;
 	pthread_mutex_t	*left;
 	pthread_mutex_t	*right;
-	t_stats	*stats;
+	t_stats			*stats;
 } t_philo;
 
 int		init(char **argv, t_philo **philo, pthread_mutex_t **forks);
@@ -49,6 +48,7 @@ void	ft_putstr_fd(const char *s, int fd);
 void	free_philo(t_philo *philo, pthread_mutex_t *forks, pthread_t *th);
 void	*monitoring(void *arg);
 int	 	valid_args(int argc, char **argv);
-long gettime(int type);
+long	 gettime(int type);
+void	ft_usleep(long sleep_time);
 
 #endif

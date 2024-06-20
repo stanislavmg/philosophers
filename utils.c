@@ -60,3 +60,12 @@ void free_philo(t_philo *philo, pthread_mutex_t *forks, pthread_t *th)
 	free(philo->stats);
 	free(philo);
 }
+
+void	ft_usleep(long sleep_time)
+{
+	long	start;
+
+	start = gettime(1);
+	while ((gettime(1) - start) < sleep_time)
+		usleep(500);
+}

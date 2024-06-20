@@ -6,12 +6,12 @@ static void	sync_threads(t_philo *philo)
 	i = -1;
 	while (++i < philo->stats->philo_num)
 		pthread_mutex_lock(philo[i].lock);
-	usleep(IN_MICROSEC(1000));
+	usleep(IN_MICROSEC(100));
 	i = -1;
 	while (++i < philo->stats->philo_num)
 	{
-		philo[i].timestamp = gettime(1);
-		philo[i].lastmeal = philo[i].timestamp;
+		// philo[i].timestamp = gettime(1);
+		// philo[i].lastmeal = philo[i].timestamp;
 		pthread_mutex_unlock(philo[i].lock);
 	}
 }
@@ -23,7 +23,7 @@ int seek_min(t_philo *philo)
 	int i;
 
 	i = 0;
-	min = philo[i].eat_count;
+	min = philo[i].lastmeal;
 	rval = philo;
 	while (i < philo->stats->philo_num)
 	{
@@ -40,10 +40,6 @@ int seek_min(t_philo *philo)
 void	*monitoring(void *arg)
 {
 	int	i;
-	int index;
-	int left;
-	int right;
-	//int c_status;
 	t_philo *philo;
 
 	
@@ -57,44 +53,23 @@ void	*monitoring(void *arg)
 			if (philo[i].status == DEAD)
 			{
 				pthread_mutex_lock(philo->lock_write);
-				printf("Monitor message: Philosopher #%d dead\n", philo[i].index);
+			//	printf("Monitor message: Philosopher #%d dead\n", philo[i].index);
 				i = 0;
 				while (i < philo->stats->philo_num)
 				{
 					pthread_mutex_lock(philo[i].lock);
-					philo[i].status = DEAD;
-					pthread_mutex_unlock(philo[i].lock);
+					//printf("philosopher #%d locked\n", philo[i].index);
+					philo[i].status = STOP;
 					i++;
 				}
+				i = -1;
+				while (++i < philo->stats->philo_num)
+					pthread_mutex_unlock(philo[i].lock);
 				pthread_mutex_unlock(philo->lock_write);
 				return (NULL);
 			}
 			i++;
 		}
-		index = seek_min(philo);
-		if (index == philo->stats->philo_num - 1)
-		{
-			left = index - 1;
-			right = 0;
-		}
-		else if (index == 0)
-		{
-			left = philo->stats->philo_num - 1;
-			right = index + 1;
-		}
-		else{
-			left = index - 1;
-			right = index + 1;
-		}
-		pthread_mutex_lock(philo[right].lock);
-		pthread_mutex_lock(philo[left].lock);
-		//c_status = philo[index].status;
-		//while(philo[index].status == c_status);
-		usleep(IN_MICROSEC(10));
-		pthread_mutex_unlock(philo[right].lock);
-		pthread_mutex_unlock(philo[left].lock);
-		(void)left;
-	//	printf("Hello from Monitor\n");
 	}
 	return (NULL);
 }

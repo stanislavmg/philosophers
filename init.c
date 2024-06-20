@@ -48,8 +48,6 @@ static t_philo	*init_philo(t_stats *st, pthread_mutex_t *forks)
 	philo = (t_philo *)malloc(sizeof(t_philo) * st->philo_num);
 	philo->lock_write = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
 	pthread_mutex_init(philo->lock_write, NULL);
-	philo->exp = (int *)malloc(sizeof(int));
-	*philo->exp = 0;
 	if (!philo)
 		return (NULL);
 	while (i < st->philo_num)
@@ -62,13 +60,11 @@ static t_philo	*init_philo(t_stats *st, pthread_mutex_t *forks)
 		philo[i].lastmeal = 0;
 		philo[i].status = THINK;
 		philo[i].stats = st;
-		philo[i].exp = philo->exp;
 		philo[i].timestamp = 0;
-
 		if (philo[i].index == st->philo_num)
 		{
-			philo[i].left = &forks[0];
-			philo[i].right = &forks[i];
+			philo[i].left = &forks[i];
+			philo[i].right = &forks[0];
 		}
 		else if ((i + 1) % 2 == 0)
 		{
