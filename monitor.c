@@ -1,4 +1,5 @@
 #include "philo.h"
+
 static void	sync_threads(t_philo *philo)
 {
 	int	i;
@@ -9,33 +10,21 @@ static void	sync_threads(t_philo *philo)
 	usleep(IN_MICROSEC(100));
 	i = -1;
 	while (++i < philo->stats->philo_num)
-	{
-		// philo[i].timestamp = gettime(1);
-		// philo[i].lastmeal = philo[i].timestamp;
 		pthread_mutex_unlock(philo[i].lock);
-	}
 }
 
-int seek_min(t_philo *philo)
-{
-	t_philo *rval;
-	int min;
-	int i;
+// static int	check_full(t_philo *philo)
+// {
+// 	int i;
 
-	i = 0;
-	min = philo[i].lastmeal;
-	rval = philo;
-	while (i < philo->stats->philo_num)
-	{
-		if (philo[i].eat_count < min)
-		{
-			min = philo[i].eat_count;
-			rval = philo + i;
-		}
-		i++;
-	}
-	return (rval->index - 1);
-}
+// 	i = -1;
+// 	while (++i < philo->stats->philo_num)
+// 	{
+// 		if (philo[i].status != FULL)
+// 			return (0);
+// 	}
+// 	return (1);
+// }
 
 void	*monitoring(void *arg)
 {
@@ -47,19 +36,22 @@ void	*monitoring(void *arg)
 	sync_threads(philo);
 	while (1)
 	{
-		i = 0;
-		while (i < philo->stats->philo_num)
+		i = -1;
+		// if (check_full(philo))
+		// 	break ;
+		while (++i < philo->stats->philo_num)
 		{
-			if (philo[i].status == DEAD)
+			if (DEAD == philo[i].status)
 			{
 				pthread_mutex_lock(philo->lock_write);
-			//	printf("Monitor message: Philosopher #%d dead\n", philo[i].index);
-				i = 0;
-				while (i < philo->stats->philo_num)
+				i = -1;
+				while (++i < philo->stats->philo_num)
 				{
+					// if (FULL == philo[i].status)
+					//  	continue ;
 					pthread_mutex_lock(philo[i].lock);
-					//printf("philosopher #%d locked\n", philo[i].index);
 					philo[i].status = STOP;
+					printf("Philo #%d locked\n", i + 1);
 					i++;
 				}
 				i = -1;
@@ -68,7 +60,6 @@ void	*monitoring(void *arg)
 				pthread_mutex_unlock(philo->lock_write);
 				return (NULL);
 			}
-			i++;
 		}
 	}
 	return (NULL);

@@ -7,7 +7,7 @@
 # define ERR_MUTEX	-2
 # define ERR_MALLOC	-3
 # define ERR_THREAD	-4
-# define UNDEFINED	-102
+# define UNDEFINED	-5
 
 # include <stdio.h>
 # include <unistd.h>
@@ -15,7 +15,7 @@
 # include <pthread.h>
 # include <sys/time.h>
 
-enum e_status { EATING, SLEEP, THINK, FORK, DEAD, STOP };
+enum e_status { EATING, SLEEP, THINK, FORK, DEAD, STOP, FULL };
 
 typedef struct s_stats
 {
