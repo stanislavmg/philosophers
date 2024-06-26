@@ -59,21 +59,23 @@ static t_philo	*init_philo(t_stats *st, pthread_mutex_t *forks)
 		philo[i].index = i + 1;
 		philo[i].status = THINK;
 		philo[i].stats = st;
-		if (philo[i].index == st->philo_num)
-		{
-			philo[i].left = &forks[i];
-			philo[i].right = &forks[0];
-		}
-		else if ((i + 1) % 2 == 0)
-		{
-			philo[i].left = &forks[i + 1];
-			philo[i].right = &forks[i];
-		}
-		else
-		{
-			philo[i].left = &forks[i];
-			philo[i].right = &forks[i + 1];
-		}
+	 	philo[i].left = &forks[i];
+	 	philo[i].right = &forks[(i + 1) % st->philo_num];
+		// if (philo[i].index == st->philo_num)
+		// {
+		// 	philo[i].left = &forks[i];
+		// 	philo[i].right = &forks[0];
+		// }
+		// else if ((i + 1) % 2 == 0)
+		// {
+		// 	philo[i].left = &forks[i + 1];
+		// 	philo[i].right = &forks[i];
+		// }
+		// else
+		// {
+		// 	philo[i].left = &forks[i];
+		// 	philo[i].right = &forks[i + 1];
+		// }
 		i++;
 	}
 	return (philo);	
@@ -100,6 +102,7 @@ int create_threads(t_philo *philo, pthread_mutex_t *forks)
 {
 	int			i;
 	void 		*status;
+	long		t;
 	pthread_t	*th;
 
 	i = 0;
@@ -108,9 +111,12 @@ int create_threads(t_philo *philo, pthread_mutex_t *forks)
 		return (ERR_MALLOC);
 	if(pthread_create(th + i, NULL, monitoring, philo))
 		return (ERR_THREAD);
-	usleep(IN_MICROSEC(10));
+	usleep(IN_MICROSEC(100));
+	t = gettime(1);
 	while (++i < philo->stats->philo_num + 1)
 	{
+		philo[i - 1].lastmeal = t;
+		philo[i - 1].timestamp = t;
 		if(pthread_create(th + i, NULL, start_routine, philo + i - 1))
 			return (ERR_THREAD);
 	}

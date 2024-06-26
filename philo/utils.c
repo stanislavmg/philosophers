@@ -45,6 +45,20 @@ int valid_args(int argc, char **argv)
 // 	return (0);
 // }
 
+long gettime(int type)
+{
+	struct timeval tv;
+
+	gettimeofday(&tv, NULL);
+	if (type == 2)
+		return (tv.tv_sec + (tv.tv_usec / 1e6));
+	if (type == 1)
+		return ((tv.tv_sec * 1e3) + (tv.tv_usec / 1e3));
+	if (type == 3)
+		return ((tv.tv_sec * 1e6) + tv.tv_usec);
+	return (0);
+}
+
 void free_philo(t_philo *philo, pthread_mutex_t *forks, pthread_t *th)
 {
 	int i;

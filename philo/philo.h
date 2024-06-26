@@ -1,7 +1,9 @@
 #ifndef PHILO_H
 # define PHILO_H
+
 # define IN_MILISEC(time) (time / 1000)
 # define IN_MICROSEC(time) (time * 1000)
+
 /* ERROR CODES */
 # define ERR_STATS	-1
 # define ERR_MUTEX	-2
@@ -48,7 +50,7 @@ void	ft_putstr_fd(const char *s, int fd);
 void	free_philo(t_philo *philo, pthread_mutex_t *forks, pthread_t *th);
 void	*monitoring(void *arg);
 int	 	valid_args(int argc, char **argv);
-long	 gettime(int type);
+long	gettime(int type);
 void	ft_usleep(long sleep_time);
 
 #endif
