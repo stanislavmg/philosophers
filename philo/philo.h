@@ -1,9 +1,6 @@
 #ifndef PHILO_H
 # define PHILO_H
 
-# define IN_MILISEC(time) (time / 1000)
-# define IN_MICROSEC(time) (time * 1000)
-
 /* ERROR CODES */
 # define ERR_STATS	-1
 # define ERR_MUTEX	-2
@@ -17,7 +14,16 @@
 # include <pthread.h>
 # include <sys/time.h>
 
-enum e_status { EATING, SLEEP, THINK, FORK, DEAD, STOP, FULL };
+typedef enum e_status
+{
+	EATING,
+	SLEEP,
+	THINK,
+	FORK,
+	DEAD,
+	STOP,
+	FULL
+}	t_status;
 
 typedef struct s_stats
 {
@@ -26,12 +32,10 @@ typedef struct s_stats
 	suseconds_t		ttd; // time to die
 	suseconds_t		tte; // time to eat
 	suseconds_t		tts; // time to sleep
-} t_stats;
+}	t_stats;
 
 typedef struct s_philo
 {
-	pthread_mutex_t	*lock;
-	pthread_mutex_t	*lock_write;
 	int				index;
 	int				eat_count;
 	int				status;
@@ -40,17 +44,17 @@ typedef struct s_philo
 	pthread_mutex_t	*left;
 	pthread_mutex_t	*right;
 	t_stats			*stats;
-} t_philo;
+}	t_philo;
 
 int		init(char **argv, t_philo **philo, pthread_mutex_t **forks);
-int 	create_threads(t_philo *philo, pthread_mutex_t *forks);
+int		create_threads(t_philo *philo, pthread_t *th);
 void	*start_routine(void *arg);
 int		ft_atoi(const char *str);
 void	ft_putstr_fd(const char *s, int fd);
 void	free_philo(t_philo *philo, pthread_mutex_t *forks, pthread_t *th);
 void	*monitoring(void *arg);
-int	 	valid_args(int argc, char **argv);
-long	gettime(int type);
+int		valid_args(int argc, char **argv);
+long	gettime(void);
 void	ft_usleep(long sleep_time);
 
 #endif

@@ -2,15 +2,14 @@
 
 static int	print_action(int status, t_philo *philo)
 {
-	long t;
+	long	t;
 
-	t = gettime(1);
+	t = gettime();
 	if (STOP == philo->status)
-		return 1;
+		return (1);
 	else if (DEAD == status)
 	{
 		printf("%ld %d died\n", t - philo->timestamp, philo->index);
-		printf("difference = %ld\n", t - philo->lastmeal);
 		philo->status = status;
 		return (1);
 	}
@@ -35,9 +34,9 @@ static int	print_action(int status, t_philo *philo)
 	return (0);
 }
 
-static int cmp_time(t_philo * philo)
+static int	cmp_time(t_philo *philo)
 {
-	return (philo->stats->ttd < (gettime(1) - philo->lastmeal));
+	return (philo->stats->ttd < (gettime() - philo->lastmeal));
 }
 
 static int	try_eat(t_philo *philo)
@@ -71,15 +70,9 @@ void	*start_routine(void *arg)
 
 	philo = (t_philo *)arg;
 	if (philo->index % 2 == 0)
-	 	usleep(20000);
+		usleep(20000);
 	while (1)
 	{
-		if (philo->eat_count >= philo->stats->eat_limit
-			&& philo->stats->eat_limit != UNDEFINED)
-		{
-			philo->status = FULL;
-			break ;
-		}
 		if (cmp_time(philo))
 			philo->status = DEAD;
 		if (philo->status == DEAD)
@@ -89,6 +82,12 @@ void	*start_routine(void *arg)
 		}
 		if (STOP == philo->status || try_eat(philo))
 			break ;
+		if (philo->eat_count >= philo->stats->eat_limit
+			&& philo->stats->eat_limit != UNDEFINED)
+		{
+			philo->status = FULL;
+			break ;
+		}
 		if (print_action(SLEEP, philo))
 			break ;
 		if (print_action(THINK, philo))

@@ -2,7 +2,7 @@
 
 static t_stats	*init_stats(char **argv)
 {
-	t_stats 		*stats;
+	t_stats	*stats;
 
 	stats = (t_stats *)malloc(sizeof(t_stats));
 	if (!stats)
@@ -20,7 +20,7 @@ static t_stats	*init_stats(char **argv)
 
 static pthread_mutex_t	*forks_init(int num)
 {
-	pthread_mutex_t *forks;
+	pthread_mutex_t	*forks;
 	int				i;
 
 	i = 0;
@@ -29,7 +29,7 @@ static pthread_mutex_t	*forks_init(int num)
 		return (NULL);
 	while (i < num)
 	{
-		if(pthread_mutex_init(forks + i, NULL))
+		if (pthread_mutex_init(forks + i, NULL))
 		{
 			free(forks);
 			return (NULL);
@@ -41,49 +41,28 @@ static pthread_mutex_t	*forks_init(int num)
 
 static t_philo	*init_philo(t_stats *st, pthread_mutex_t *forks)
 {
-	int	i;
-	t_philo *philo;
+	int		i;
+	t_philo	*philo;
 
-	i = 0;
+	i = -1;
 	philo = (t_philo *)malloc(sizeof(t_philo) * st->philo_num);
-	philo->lock_write = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
-	pthread_mutex_init(philo->lock_write, NULL);
 	if (!philo)
 		return (NULL);
-	while (i < st->philo_num)
+	while (++i < st->philo_num)
 	{
-		philo[i].lock = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
-		pthread_mutex_init(philo[i].lock, NULL);
 		philo[i].eat_count = 0;
-		philo[i].lock_write = philo->lock_write;
 		philo[i].index = i + 1;
 		philo[i].status = THINK;
 		philo[i].stats = st;
-	 	philo[i].left = &forks[i];
-	 	philo[i].right = &forks[(i + 1) % st->philo_num];
-		// if (philo[i].index == st->philo_num)
-		// {
-		// 	philo[i].left = &forks[i];
-		// 	philo[i].right = &forks[0];
-		// }
-		// else if ((i + 1) % 2 == 0)
-		// {
-		// 	philo[i].left = &forks[i + 1];
-		// 	philo[i].right = &forks[i];
-		// }
-		// else
-		// {
-		// 	philo[i].left = &forks[i];
-		// 	philo[i].right = &forks[i + 1];
-		// }
-		i++;
+		philo[i].left = &forks[i];
+		philo[i].right = &forks[(i + 1) % st->philo_num];
 	}
-	return (philo);	
+	return (philo);
 }
 
 int	init(char **argv, t_philo **philo, pthread_mutex_t **forks)
 {
-	t_stats 		*st;
+	t_stats	*st;
 
 	st = NULL;
 	st = init_stats(argv);
@@ -98,38 +77,29 @@ int	init(char **argv, t_philo **philo, pthread_mutex_t **forks)
 	return (0);
 }
 
-int create_threads(t_philo *philo, pthread_mutex_t *forks)
+int	create_threads(t_philo *philo, pthread_t *th)
 {
 	int			i;
-	void 		*status;
-	long		t;
-	pthread_t	*th;
+	void		*status;
 
 	i = 0;
-	th = (pthread_t *)malloc(sizeof(pthread_t) * philo->stats->philo_num + 1);
-	if (!th)
-		return (ERR_MALLOC);
-	if(pthread_create(th + i, NULL, monitoring, philo))
+
+	if (pthread_create(th + i, NULL, monitoring, philo))
 		return (ERR_THREAD);
-	usleep(IN_MICROSEC(100));
-	t = gettime(1);
+	usleep(1e6);
+	philo->timestamp = gettime();
 	while (++i < philo->stats->philo_num + 1)
 	{
-		philo[i - 1].lastmeal = t;
-		philo[i - 1].timestamp = t;
-		if(pthread_create(th + i, NULL, start_routine, philo + i - 1))
+		philo[i - 1].lastmeal = philo->timestamp;
+		philo[i - 1].timestamp = philo->timestamp;
+		if (pthread_create(th + i, NULL, start_routine, philo + i - 1))
 			return (ERR_THREAD);
+	//	pthread_detach(*th[i]);
 	}
 	pthread_join(th[0], &status);
-	if (!status)
-	{
-		i = 0;
-		while (++i < philo->stats->philo_num + 1)
-			pthread_join(th[i], &status);
-		printf("\n\nMain is over!\n\n");
-		//free_philo(philo, forks, th);
-		exit(1);
-	}
-	(void)forks;
+	i = 0;
+	while (++i < philo->stats->philo_num + 1)
+	 	pthread_join(th[i], &status);
+	printf("here\n");
 	return (0);
 }
