@@ -46,7 +46,7 @@ typedef struct s_philo
 	t_stats			*stats;
 }	t_philo;
 
-int		init(char **argv, t_philo **philo, pthread_mutex_t **forks);
+t_philo	*init(char **argv, pthread_mutex_t **forks, int *err);
 int		create_threads(t_philo *philo, pthread_t *th);
 void	*start_routine(void *arg);
 int		ft_atoi(const char *str);
@@ -56,5 +56,8 @@ void	*monitoring(void *arg);
 int		valid_args(int argc, char **argv);
 long	gettime(void);
 void	ft_usleep(long sleep_time);
+void    *handle_one(void *arg);
+int		check_stats(t_stats *stats);
+void	print_error(int err);
 
 #endif

@@ -11,10 +11,13 @@ static int	check_str(char *s)
 		i++;
 	if (s[i] == '-' || s[i] == '+')
 		i++;
-	while ('0' == s[i])
-		i++;
 	while (s[i] && (s[i] >= '0' && s[i] <= '9'))
 	{
+		if ('0' == s[i] && s[i + 1])
+		{
+			i++;
+			continue;
+		}
 		i++;
 		count++;
 	}
@@ -40,15 +43,16 @@ int	valid_args(int argc, char **argv)
 	return (0);
 }
 
-// int	check_stats(t_stats *stats)
-// {
-// 	if (stats->eat_limit < 0 ||
-// 		stats->ttd < 0 ||
-// 		stats->tte < 0 ||
-// 		stats->tts < 0)
-// 		return (1);
-// 	return (0);
-// }
+int	check_stats(t_stats *stats)
+{
+	if (stats->eat_limit < 0 ||
+		stats->ttd < 0 ||
+		stats->tte < 0 ||
+		stats->tts < 0 ||
+		stats->philo_num < 0)
+		return (1);
+	return (0);
+}
 
 long	gettime(void)
 {

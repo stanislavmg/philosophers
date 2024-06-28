@@ -70,7 +70,7 @@ void	*start_routine(void *arg)
 
 	philo = (t_philo *)arg;
 	if (philo->index % 2 == 0)
-		usleep(20000);
+		ft_usleep(philo->stats->tte);
 	while (1)
 	{
 		if (cmp_time(philo))
@@ -94,4 +94,17 @@ void	*start_routine(void *arg)
 			break ;
 	}
 	return (NULL);
+}
+
+void    *handle_one(void *arg)
+{
+	t_philo	*philo;
+
+	philo = (t_philo *)arg;
+    pthread_mutex_lock(philo->left);
+	print_action(FORK, philo);
+    ft_usleep(philo->stats->ttd);
+	print_action(DEAD, philo);
+    pthread_mutex_unlock(philo->left);
+    return (NULL);
 }

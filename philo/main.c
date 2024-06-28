@@ -12,16 +12,29 @@ int	main(int argc, char **argv)
 	forks = NULL;
 	th = NULL;
 	if (valid_args(argc, argv))
-		return (1);
-	err = init(argv, &philo, &forks);
-	if (err)
-		printf("%d\n", err);
-	if (!philo)
-		return (1);
+		print_error(ERR_STATS);
+	philo = init(argv, &forks, &err);
+	if (err || !philo)
+		print_error(err);
 	th = (pthread_t *)malloc(sizeof(pthread_t) * philo->stats->philo_num + 1);
 	if (!th)
-		return (1);
-	create_threads(philo, th);
+		print_error(ERR_MALLOC);
+	err = create_threads(philo, th);
+	if (err)
+		print_error(err);
 	free_philo(philo, forks, th);
 	return (0);
+}
+
+void	print_error(int err)
+{
+	if (ERR_STATS == err)
+		printf("Invalid arguments\n");
+	else if (ERR_MUTEX == err)
+		printf("Mutex error\n");
+	else if (ERR_MALLOC == err)
+		printf("No memory\n");
+	else if (ERR_THREAD == err)
+		printf("Thread error\n");
+	exit(EXIT_FAILURE);
 }
