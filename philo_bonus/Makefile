@@ -1,7 +1,7 @@
 NAME = philo_bonus
 INCLUDE = philo_bonus.h
 CFLAGS = -Wall -Wextra -Werror -g3
-SRC = main.c init.c string.c utils.c monitor.c routine.c
+SRC = main.c init.c string.c utils.c routine.c
 OBJ = $(SRC:%.c=%.o)
 
 all: $(NAME)

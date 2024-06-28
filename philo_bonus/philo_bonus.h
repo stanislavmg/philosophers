@@ -1,14 +1,12 @@
 #ifndef PHILO_BONUS_H
 # define PHILO_BONUS_H
 # define UNDEFINED	-5
-# define SEM_NAME "/forks4"
+# define SEM_NAME "/test1"
 
 # include <semaphore.h>
 # include <stdlib.h>
 # include <stdio.h>
-# include <pthread.h>
 # include <unistd.h>
-# include <fcntl.h>
 # include <sys/time.h>
 # include <signal.h>
 
@@ -47,10 +45,11 @@ typedef struct s_philo
 int 	init(char **argv, t_philo **philo);
 int 	ft_atoi(const char *str);
 long	gettime(void);
+void	free_philo(t_philo *philo);
 int 	valid_args(int argc, char **argv);
 void	ft_usleep(long sleep_time);
-void	*monitoring(void *arg);
-void	*start_routine(void *arg);
+void	*start_routine(t_philo	*philo);
 void    start_work(t_philo *philo);
+void    handle_one(t_philo *philo);
 
 #endif

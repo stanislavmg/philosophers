@@ -11,6 +11,7 @@ int main(int argc, char **argv)
 	if (!philo)
 		return (1);
     start_work(philo);
+    free_philo(philo);
     return (0);
 }
 
@@ -22,7 +23,8 @@ void    start_work(t_philo *philo)
 
     i = 0;
     status = 0;
-	sem = sem_open(SEM_NAME, O_CREAT, O_RDWR, philo->stats->philo_num);
+    sem_unlink(SEM_NAME);
+	sem = sem_open(SEM_NAME, O_CREAT, 0644, philo->stats->philo_num);
     if (sem == SEM_FAILED)
         return ;
     philo->timestamp = gettime();
@@ -31,16 +33,21 @@ void    start_work(t_philo *philo)
         philo[i].timestamp = philo->timestamp;
         philo[i].lastmeal = philo->timestamp;
         philo[i].pid = fork();
-        if (!philo[i].pid)
+        if (!philo[i].pid && philo->stats->philo_num > 1)
             start_routine(philo + i);
+        else if (!philo[i].pid && philo->stats->philo_num == 1)
+            handle_one(philo + i);
         i++;
     }
-    wait(&status);
     i = -1;
-    if (status)
+    while(++i < philo->stats->philo_num)
     {
-        printf("HOW I KILL EACH CHILD\n");
-        while(++i < philo->stats->philo_num)
-            kill(philo[i].pid, SIGTERM);
+        wait(&status);
+        if (status)
+        {
+            i = -1;
+            while(++i < philo->stats->philo_num)
+                kill(philo[i].pid, SIGTERM);
+        }
     }
 }

@@ -36,7 +36,6 @@ static int	print_action(int status, t_philo *philo)
 
 static int	cmp_time(t_philo *philo)
 {
-	printf("DIFFERENT = %ld\n", gettime() - philo->lastmeal);
 	return (philo->stats->ttd < (gettime() - philo->lastmeal));
 }
 
@@ -65,16 +64,13 @@ static int	try_eat(t_philo *philo)
 	return (0);
 }
 
-void	*start_routine(void *arg)
+void	*start_routine(t_philo	*philo)
 {
-	t_philo	*philo;
-
-	philo = (t_philo *)arg;
 	philo->forks = sem_open(SEM_NAME, 0);
 	if (philo->forks == SEM_FAILED)
         exit (2);
 	if (philo->index % 2 == 0)
-		usleep(20000);
+		ft_usleep(philo->stats->tte);
 	while (1)
 	{
 		if (cmp_time(philo))
@@ -90,12 +86,28 @@ void	*start_routine(void *arg)
 			&& philo->stats->eat_limit != UNDEFINED)
 		{
 			philo->status = FULL;
-			break ;
+			sem_close(philo->forks);
+			exit(0);
 		}
 		if (print_action(SLEEP, philo))
 			break ;
 		if (print_action(THINK, philo))
 			break ;
 	}
+	sem_close(philo->forks);
 	exit(1);
+}
+
+void    handle_one(t_philo *philo)
+{
+    philo->forks = sem_open(SEM_NAME, 0);
+	if (philo->forks == SEM_FAILED)
+        exit (2);
+	sem_wait(philo->forks);
+	print_action(FORK, philo);
+    ft_usleep(philo->stats->ttd);
+	print_action(DEAD, philo);
+	sem_post(philo->forks);
+	sem_close(philo->forks);
+    exit(0);
 }

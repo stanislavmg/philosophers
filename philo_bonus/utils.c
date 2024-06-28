@@ -24,6 +24,12 @@ static int	check_str(char *s)
 		return (1);
 	return (0);
 }
+void	free_philo(t_philo *philo)
+{
+	sem_unlink(SEM_NAME);
+	free(philo->stats);
+	free(philo);
+}
 
 int	valid_args(int argc, char **argv)
 {
