@@ -50,7 +50,6 @@ t_philo	*init(char **argv, pthread_mutex_t **forks, int *err);
 int		create_threads(t_philo *philo, pthread_t *th);
 void	*start_routine(void *arg);
 int		ft_atoi(const char *str);
-void	ft_putstr_fd(const char *s, int fd);
 void	free_philo(t_philo *philo, pthread_mutex_t *forks, pthread_t *th);
 void	*monitoring(void *arg);
 int		valid_args(int argc, char **argv);
