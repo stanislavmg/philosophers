@@ -1,28 +1,47 @@
 #include "philo.h"
-
-int	ft_atoi(const char *str)
+static int	ft_isspace(char ch)
 {
-	int	sign;
-	int	res;
-	int	i;
+	return ((ch >= '\t' && ch <= '\r') || ch == ' ');
+}
+
+void	print_error(int err)
+{
+	if (ERR_ARG == err)
+		printf("Invalid arguments\n");
+	else if (ERR_MUTEX == err)
+		printf("Mutex error\n");
+	else if (ERR_MALLOC == err)
+		printf("No memory\n");
+	else if (ERR_THREAD == err)
+		printf("Thread error\n");
+	else
+		printf("Unexpected error\n");
+}
+
+size_t	ft_atoi(char *s)
+{
+	int		i;
+	size_t	res;
 
 	i = 0;
 	res = 0;
-	sign = 1;
-	while ((str[i] >= '\t' && str[i] <= '\r') || str[i] == ' ')
+	if (!s)
+		return (ERR_ARG);
+	while (ft_isspace(s[i]))
 		i++;
-	if (str[i] == '-')
-	{
-		sign = -1;
+	if (!s[i])
+		return (ERR_ARG);
+	if (s[i] == '+')
 		i++;
-	}
-	else if (str[i] == '+')
-		i++;
-	while (str[i] >= '0' && str[i] <= '9')
+	while (s[i] >= '0' && s[i] <= '9')
 	{
 		res *= 10;
-		res += str[i] - '0';
+		res += s[i] - '0';
 		i++;
 	}
-	return (res * sign);
+	while (ft_isspace(s[i]))
+		i++;
+	if (s[i] || res > INT_MAX)
+		return (ERR_ARG);
+	return (res);
 }

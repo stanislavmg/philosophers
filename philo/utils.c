@@ -1,57 +1,19 @@
 #include "philo.h"
 
-static int	check_str(char *s)
+void	*ft_calloc(size_t nmemb, size_t size)
 {
-	int	i;
-	int	count;
+	char	*pt;
+	size_t	i;
+	size_t	n;
 
 	i = 0;
-	count = 0;
-	while ((s[i] >= '\t' && s[i] <= '\r') || s[i] == ' ')
-		i++;
-	if (s[i] == '-' || s[i] == '+')
-		i++;
-	while (s[i] && (s[i] >= '0' && s[i] <= '9'))
-	{
-		if ('0' == s[i] && s[i + 1])
-		{
-			i++;
-			continue;
-		}
-		i++;
-		count++;
-	}
-	while (s[i] && ((s[i] >= '\t' && s[i] <= '\r') || s[i] == ' '))
-		i++;
-	if (s[i] || count > 10 || 0 == count)
-		return (1);
-	return (0);
-}
-
-int	valid_args(int argc, char **argv)
-{
-	int	i;
-
-	i = 0;
-	if (argc != 5 && argc != 6)
-		return (1);
-	while (argv[++i])
-	{
-		if (check_str(argv[i]))
-			return (1);
-	}
-	return (0);
-}
-
-int	check_stats(t_stats *stats)
-{
-	if (stats->eat_limit < 0 ||
-		stats->ttd < 0 ||
-		stats->tte < 0 ||
-		stats->tts < 0 ||
-		stats->philo_num < 0)
-		return (1);
-	return (0);
+	n = size * nmemb;
+	pt = (char *)malloc(n);
+	if (!pt)
+		return (NULL);
+	while (i < n)
+		pt[i++] = 0;
+	return ((void *)pt);
 }
 
 long	gettime(void)
@@ -62,17 +24,27 @@ long	gettime(void)
 	return ((tv.tv_sec * 1e3) + (tv.tv_usec / 1e3));
 }
 
-void	free_philo(t_philo *philo, pthread_mutex_t *forks, pthread_t *th)
+void	*free_data(t_data *data)
 {
 	int	i;
 
 	i = -1;
-	while (++i < philo->stats->philo_num)
-		pthread_mutex_destroy(forks + i);
-	free(forks);
-	free(th);
-	free(philo->stats);
-	free(philo);
+	if (!data)
+		return (NULL);
+	if (data->stats)
+	{
+	while (++i < data->stats->philo_num)
+	{
+		pthread_mutex_destroy(data->locks + i);
+		pthread_mutex_destroy(data->forks + i);
+	}
+	}
+	free(data->forks);
+	free(data->threads);
+	free(data->stats);
+	free(data->all_philo);
+	free(data);
+	return (NULL);
 }
 
 void	ft_usleep(long sleep_time)
@@ -81,5 +53,19 @@ void	ft_usleep(long sleep_time)
 
 	start = gettime();
 	while ((gettime() - start) < sleep_time)
-		usleep(500);
+		usleep(250);
+}
+
+int	check_stats(t_stats *stats)
+{
+	if (stats->ttd < 0 ||
+		stats->tte < 0 ||
+		stats->tts < 0 ||
+		stats->philo_num < 0 ||
+		(stats->eat_limit < 0 && stats->eat_limit != UNDEFINED))
+	{
+		printf("Incorrect arguments\n");
+		return (1);
+	}
+	return (0);
 }

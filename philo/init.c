@@ -1,129 +1,116 @@
 #include "philo.h"
 
-static t_stats	*init_stats(char **argv, int *err)
+t_data	*init(int argc, char **argv)
+{
+	t_data *data;
+
+	data = (t_data *)ft_calloc(1, sizeof(t_data));
+	if (!data)
+		return (NULL);
+	data->stats = init_stats(argc, argv);
+	if (!data->stats)
+		return (free_data(data));
+	if (init_mutex(data, data->stats->philo_num))
+		return (data);
+	data->all_philo = init_philo(data, data->stats->philo_num);
+	if (!data->all_philo)
+		return (data);
+	data->threads = (pthread_t *)malloc(sizeof(pthread_t) * (data->stats->philo_num + 1));
+	if (!data->threads)
+		return (data);
+	if (init_threads(data->threads, data->all_philo, data->stats->philo_num))
+		return (data);
+	return (data);
+}
+
+t_stats	*init_stats(int argc, char **argv)
 {
 	t_stats	*stats;
 
-	stats = (t_stats *)malloc(sizeof(t_stats));
-	if (!stats)
+	if (argc != 5 && argc != 6)
 	{
-		*err = ERR_MALLOC;
+		printf("Incorrect arguments\n");
 		return (NULL);
 	}
+	stats = (t_stats *)ft_calloc(1, sizeof(t_stats));
+	if (!stats)
+		return (NULL);
 	stats->philo_num = ft_atoi(argv[1]);
 	stats->ttd = ft_atoi(argv[2]);
 	stats->tte = ft_atoi(argv[3]);
 	stats->tts = ft_atoi(argv[4]);
 	if (argv[5])
 		stats->eat_limit = ft_atoi(argv[5]);
+	else
+		stats->eat_limit = UNDEFINED;
 	if (check_stats(stats))
 	{
-		*err = ERR_STATS;
+		free(stats);
 		return (NULL);
 	}
-	if (!argv[5])
-		stats->eat_limit = UNDEFINED;
 	return (stats);
 }
 
-static pthread_mutex_t	*forks_init(int num, int *err)
+int init_mutex(t_data *data, int num)
 {
-	pthread_mutex_t	*forks;
 	int				i;
 
 	i = 0;
-	forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * num);
-	if (!forks)
-	{
-		*err = ERR_MALLOC;
-		return (NULL);
-	}
+	// one time malloc for all mutexes
+	data->forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * num * 2);
+	if (!data->forks)
+		return (1);
+	data->locks = data->forks + num;
 	while (i < num)
 	{
-		if (pthread_mutex_init(forks + i, NULL))
-		{
-			*err = ERR_MUTEX;
-			free(forks);
-			return (NULL);
-		}
+		if (pthread_mutex_init(data->forks + i, NULL) ||
+			pthread_mutex_init(data->locks + i, NULL))
+			return (1);
 		i++;
 	}
-	return (forks);
+	return (0);
 }
 
-static t_philo	*init_philo(t_stats *st, pthread_mutex_t *forks, int *err)
+t_philo	*init_philo(t_data *data, int num)
 {
-	int		i;
-	t_philo	*philo;
+	int				i;
+	t_philo			*philo;
+	pthread_mutex_t *t;
 
 	i = -1;
-	philo = (t_philo *)malloc(sizeof(t_philo) * st->philo_num);
+	philo = (t_philo *)ft_calloc(num, sizeof(t_philo));
 	if (!philo)
-	{
-		*err = ERR_MALLOC;
 		return (NULL);
-	}
-	while (++i < st->philo_num)
+	while (++i < num)
 	{
-		philo[i].eat_count = 0;
+		philo[i].lock = data->locks + i;
 		philo[i].index = i + 1;
-		philo[i].status = THINK;
-		philo[i].stats = st;
-		philo[i].left = &forks[i];
-		philo[i].right = &forks[(i + 1) % st->philo_num];
+		philo[i].stats = data->stats;
+		philo[i].left = &data->forks[i];
+		philo[i].right = &data->forks[(i + 1) % num];
 	}
+	// swap the last philosopher's forks to prevent a deadlock
+	t = philo[i - 1].right;
+	philo[i - 1].right = philo[i - 1].left;
+	philo[i - 1].left = t;
 	return (philo);
 }
 
-t_philo	*init(char **argv, pthread_mutex_t **forks, int *err)
-{
-	t_stats	*st;
-	t_philo *philo;
-
-	philo = NULL;
-	st = NULL;
-	st = init_stats(argv, err);
-	if (!st)
-		return (NULL);
-	*forks = forks_init(st->philo_num, err);
-	if (!forks)
-		return (NULL);
-	if (st->philo_num)
-		philo = init_philo(st, *forks, err);
-	if (!philo)
-		return (NULL);
-	return (philo);
-}
-
-int	create_threads(t_philo *philo, pthread_t *th)
+int	init_threads(pthread_t *th, t_philo *philo, int n)
 {
 	int			i;
-	void		*status;
 
-	i = 0;
-
-	if (pthread_create(th + i, NULL, monitoring, philo))
-		return (ERR_THREAD);
+	i = -1;
+	if (pthread_create(th, NULL, monitoring, philo))
+		return (1);
 	usleep(1e3);
 	philo->timestamp = gettime();
-	while (++i < philo->stats->philo_num + 1)
+	while (++i < n)
 	{
-		philo[i - 1].lastmeal = philo->timestamp;
-		philo[i - 1].timestamp = philo->timestamp;
-		if (philo->stats->philo_num > 1)
-		{
-			if (pthread_create(th + i, NULL, start_routine, philo + i - 1))
-				return (ERR_THREAD);
-		}
-		else
-		{
-			if (pthread_create(th + i, NULL, handle_one, philo + i - 1))
-				return (ERR_THREAD);
-		}
+		philo[i].lastmeal = philo->timestamp;
+		philo[i].timestamp = philo->timestamp;
+		if (pthread_create(++th, NULL, start_routine, philo + i))
+			return (1);
 	}
-	pthread_join(th[0], &status);
-	i = 0;
-	while (++i < philo->stats->philo_num + 1)
-	 	pthread_join(th[i], &status);
 	return (0);
 }
