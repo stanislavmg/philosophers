@@ -7,59 +7,54 @@ BOLD="\033[1m"
 RESET='\033[0m'
 
 DIR=../philo/
-LOG=./outputs/tmp/
-rows=4
-cols=2
+OUT=./outputs/out.txt
+TEST=1
 
-die=(
-    [0,0]=1 [0,1]=800 [0,2]=200 [0,3]=200
-    [1,0]=4 [1,1]=310 [1,2]=200 [1,3]=100
-)
-
-life=(
-    [0,0]=1 [0,1]=800 [0,2]=200 [0,3]=200
-    [1,0]=4 [1,1]=310 [1,2]=200 [1,3]=100
-)
-
-function start()
+function wait_for_timeout()
 {
-    make -C ${DIR}
-    if [ $? -ne 0 ]; then
-        echo "Make errors"
-        make -C ${DIR} clean
-        exit 1
-    else
-        mv ${DIR}philo ./
-    fi
-    make -C ${DIR} clean
-    touch ${LOG}out.txt
+	sleep 2
+	if kill -0 $1 &> /dev/null
+	then
+		kill $1
+	fi
 }
 
 function print_aligned() {
     local line_number=$1
     local command=$2
     local status=$3
-    local color
+    local color=0
 
-    if [ "$status" -eq "OK" ]; then
-        color = $GREEN
-    elif [ "$status" -eq "KO"]; then
-        color = $RED
+    if [ "$status" == "OK" ]; then
+        color=$GREEN
+    elif [ "$status" == "KO" ]; then
+        color=$RED
     else
         return
     fi
     printf "${color}%-3s %-28s %5s\n${RESET}" "$line_number" "$command" "$status"
 }
 
-function finish()
-{
-    rm -f ${LOG}* ./philo
-    > ${LOG}out.txt
-}
+make -C ${DIR} &> /dev/null
+if [ $? -ne 0 ]; then
+    echo "Make error"
+    make -C ${DIR} clean &> /dev/null
+    exit 1
+else    
+    mv ${DIR}philo ./
+fi
+make -C ${DIR} clean &> /dev/null
 
-start
-for ((i=0; i<2; i++)); do
-    ./philo "${die[$i,0]}" "${die[$i,1]}" "${die[$i,2]}" "${die[$i,3]}" |
-    head -n 30 | grep "died" >> ${LOG}out.txt
-done
-finish
+while IFS= read -r line; do
+  ((TEST+=1))
+  echo "$line" | xargs ./philo > ${OUT} & bg_process=$!
+  wait_for_timeout "${bg_process}" & wait "${bg_process}"
+  if grep -q "has died" "${OUT}"; then
+    print_aligned "${TEST}" "${line}" "KO"
+  else
+    print_aligned "${TEST}" "${line}" "OK"
+  fi
+  > ${OUT}
+done < "./should_alive.in"
+
+rm ./philo && > ${OUT}
