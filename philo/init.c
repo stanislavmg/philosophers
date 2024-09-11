@@ -79,10 +79,13 @@ t_philo	*init_philo(t_data *data, int num)
 
 	i = -1;
 	philo = (t_philo *)ft_calloc(num, sizeof(t_philo));
+	data->write = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+	pthread_mutex_init(data->write, NULL);
 	if (!philo)
 		return (NULL);
 	while (++i < num)
 	{
+		philo[i].write = data->write;
 		philo[i].lock = data->locks + i;
 		philo[i].index = i + 1;
 		philo[i].stats = data->stats;

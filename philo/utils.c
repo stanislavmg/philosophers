@@ -33,16 +33,18 @@ void	*free_data(t_data *data)
 		return (NULL);
 	if (data->stats)
 	{
-	while (++i < data->stats->philo_num)
-	{
-		pthread_mutex_destroy(data->locks + i);
-		pthread_mutex_destroy(data->forks + i);
-	}
+		pthread_mutex_destroy(data->write);
+		while (++i < data->stats->philo_num)
+		{
+			pthread_mutex_destroy(data->locks + i);
+			pthread_mutex_destroy(data->forks + i);
+		}
 	}
 	free(data->forks);
 	free(data->threads);
 	free(data->stats);
 	free(data->all_philo);
+	free(data->write);
 	free(data);
 	return (NULL);
 }

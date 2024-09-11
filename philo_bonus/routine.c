@@ -1,6 +1,6 @@
 #include "philo_bonus.h"
 
-static int	print_action(int status, t_philo *philo)
+static int	handle_status(int status, t_philo *philo)
 {
 	long	t;
 
@@ -45,20 +45,20 @@ static int	try_eat(t_philo *philo)
 	if (cmp_time(philo))
 	{
 		sem_post(philo->forks);
-		print_action(DEAD, philo);
+		handle_status(DEAD, philo);
 		return (1);
 	}
-	print_action(FORK, philo);
+	handle_status(FORK, philo);
 	sem_wait(philo->forks);
 	if (cmp_time(philo))
 	{
 		sem_post(philo->forks);
 		sem_post(philo->forks);
-		print_action(DEAD, philo);
+		handle_status(DEAD, philo);
 		return (1);
 	}
-	print_action(FORK, philo);
-	print_action(EATING, philo);
+	handle_status(FORK, philo);
+	handle_status(EATING, philo);
 	sem_post(philo->forks);
 	sem_post(philo->forks);
 	return (0);
@@ -77,7 +77,7 @@ void	*start_routine(t_philo	*philo)
 			philo->status = DEAD;
 		if (philo->status == DEAD)
 		{
-			print_action(DEAD, philo);
+			handle_status(DEAD, philo);
 			break ;
 		}
 		if (STOP == philo->status || try_eat(philo))
@@ -89,9 +89,9 @@ void	*start_routine(t_philo	*philo)
 			sem_close(philo->forks);
 			exit(0);
 		}
-		if (print_action(SLEEP, philo))
+		if (handle_status(SLEEP, philo))
 			break ;
-		if (print_action(THINK, philo))
+		if (handle_status(THINK, philo))
 			break ;
 	}
 	sem_close(philo->forks);
@@ -104,9 +104,9 @@ void    handle_one(t_philo *philo)
 	if (philo->forks == SEM_FAILED)
         exit (2);
 	sem_wait(philo->forks);
-	print_action(FORK, philo);
+	handle_status(FORK, philo);
     ft_usleep(philo->stats->ttd);
-	print_action(DEAD, philo);
+	handle_status(DEAD, philo);
 	sem_post(philo->forks);
 	sem_close(philo->forks);
     exit(0);

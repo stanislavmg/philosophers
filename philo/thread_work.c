@@ -23,10 +23,15 @@ static int	handle_status(int status, t_philo *philo)
 {
 	int		cur_status;
 
+	pthread_mutex_lock(philo->write);
 	cur_status = get_status(philo);
 	if (STOP == cur_status || DEAD == cur_status || FULL == cur_status)
+	{
+		pthread_mutex_unlock(philo->write);
 		return (1);
+	}
 	print_action(status, philo);
+	pthread_mutex_unlock(philo->write);
 	if (DEAD == status)
 		set_status(philo, status);
 	else if (SLEEP == status)
@@ -50,7 +55,7 @@ static void    *handle_one(t_philo *philo)
 	return (NULL);
 }
 
-static int	cmp_time(const t_philo *philo)
+int	cmp_time(const t_philo *philo)
 {
 	return (philo->stats->ttd < (gettime() - philo->lastmeal));
 }

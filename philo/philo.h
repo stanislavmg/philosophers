@@ -43,6 +43,7 @@ typedef struct s_philo
 	long			lastmeal;
 	size_t			timestamp;
 	t_stats			*stats;
+	pthread_mutex_t *write;
 	pthread_mutex_t	*lock;
 	pthread_mutex_t	*left;
 	pthread_mutex_t	*right;
@@ -50,12 +51,12 @@ typedef struct s_philo
 
 typedef struct s_data
 {
+	pthread_mutex_t	*write;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	*locks;
 	pthread_t		*threads;
 	t_stats			*stats;
 	t_philo			*all_philo;
-
 }	t_data;
 
 // init
@@ -68,6 +69,7 @@ int		init_threads(pthread_t *th, t_philo *philo, int n);
 size_t	ft_atoi(char *s);
 void	print_error(int err);
 // utils
+int	cmp_time(const t_philo *philo);
 int		check_stats(t_stats *stats);
 void	ft_usleep(long sleep_time);
 long	gettime(void);
