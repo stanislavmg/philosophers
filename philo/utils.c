@@ -16,7 +16,7 @@ void	*ft_calloc(size_t nmemb, size_t size)
 	return ((void *)pt);
 }
 
-long	gettime(void)
+size_t	gettime(void)
 {
 	struct timeval	tv;
 
@@ -49,9 +49,9 @@ void	*free_data(t_data *data)
 	return (NULL);
 }
 
-void	ft_usleep(long sleep_time)
+void	ft_usleep(size_t sleep_time)
 {
-	long	start;
+	size_t	start;
 
 	start = gettime();
 	while ((gettime() - start) < sleep_time)

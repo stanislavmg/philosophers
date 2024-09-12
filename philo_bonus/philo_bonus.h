@@ -35,7 +35,7 @@ typedef struct s_philo
 	int				index;
 	int				eat_count;
 	int				status;
-	long			lastmeal;
+	size_t			lastmeal;
 	size_t			timestamp;
     pid_t           pid;
     sem_t           *forks;
@@ -44,10 +44,10 @@ typedef struct s_philo
 
 int 	init(char **argv, t_philo **philo);
 int 	ft_atoi(const char *str);
-long	gettime(void);
+size_t	gettime(void);
 void	free_philo(t_philo *philo);
 int 	valid_args(int argc, char **argv);
-void	ft_usleep(long sleep_time);
+void	ft_usleep(size_t sleep_time);
 void	*start_routine(t_philo	*philo);
 void    start_work(t_philo *philo);
 void    handle_one(t_philo *philo);

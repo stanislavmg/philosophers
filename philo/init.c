@@ -101,17 +101,18 @@ t_philo	*init_philo(t_data *data, int num)
 
 int	init_threads(pthread_t *th, t_philo *philo, int n)
 {
-	int			i;
+	int		i;
+	size_t	start_time;
 
 	i = -1;
 	if (pthread_create(th, NULL, monitoring, philo))
 		return (1);
 	usleep(1e3);
-	philo->timestamp = gettime();
+	start_time = gettime();
 	while (++i < n)
 	{
-		philo[i].lastmeal = philo->timestamp;
-		philo[i].timestamp = philo->timestamp;
+		set_time(philo->lock, &philo[i].lastmeal, start_time);
+		set_time(philo->lock, &philo[i].timestamp, start_time);
 		if (pthread_create(++th, NULL, start_routine, philo + i))
 			return (1);
 	}

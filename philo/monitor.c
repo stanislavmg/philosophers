@@ -30,9 +30,9 @@ static int	check_full(t_philo *philo)
 	return (1);
 }
 
-long	get_lastmeal(t_philo *philo)
+size_t	get_lastmeal(t_philo *philo)
 {
-	long	rval;
+	size_t	rval;
 
 	pthread_mutex_lock(philo->lock);
 	rval = philo->lastmeal;
@@ -52,11 +52,12 @@ void	*monitoring(void *arg)
 		i = -1;
 		while (++i < philo->stats->philo_num)
 		{
-			if (philo->stats->ttd < (gettime() - get_lastmeal(philo + i)))
+			if (cmp_time(philo + i))
 			{
 				pthread_mutex_lock(philo->write);
-				printf("%ld %d is died\n", gettime() - philo->timestamp, i + 1);
 				set_status(philo + i, DEAD);
+				printf("%ld %d is died\n", gettime() - get_timestamp(philo), i + 1);
+				pthread_mutex_unlock(philo->write);
 			}
 			if (DEAD == get_status(philo + i))
 			{

@@ -46,7 +46,7 @@ int	valid_args(int argc, char **argv)
 	return (0);
 }
 
-long	gettime(void)
+size_t	gettime(void)
 {
 	struct timeval	tv;
 
@@ -54,9 +54,9 @@ long	gettime(void)
 	return ((tv.tv_sec * 1e3) + (tv.tv_usec / 1e3));
 }
 
-void	ft_usleep(long sleep_time)
+void	ft_usleep(size_t sleep_time)
 {
-	long	start;
+	size_t	start;
 
 	start = gettime();
 	while ((gettime() - start) < sleep_time)

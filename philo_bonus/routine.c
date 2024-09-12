@@ -2,7 +2,7 @@
 
 static int	handle_status(int status, t_philo *philo)
 {
-	long	t;
+	size_t	t;
 
 	t = gettime();
 	if (STOP == philo->status)

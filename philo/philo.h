@@ -1,7 +1,6 @@
 #ifndef PHILO_H
 # define PHILO_H
 
-/* ERROR CODES */
 # define ERR_ARG	-1
 # define ERR_MUTEX	-2
 # define ERR_MALLOC	-3
@@ -40,8 +39,8 @@ typedef struct s_philo
 	int				index;
 	int				eat_count;
 	int				status;
-	long			lastmeal;
-	size_t			timestamp;
+	size_t		lastmeal;
+	size_t		timestamp;
 	t_stats			*stats;
 	pthread_mutex_t *write;
 	pthread_mutex_t	*lock;
@@ -65,18 +64,24 @@ t_stats	*init_stats(int argc, char **argv);
 t_philo	*init_philo(t_data *data, int num);
 int 	init_mutex(t_data *data, int num);
 int		init_threads(pthread_t *th, t_philo *philo, int n);
+
 // string
 size_t	ft_atoi(char *s);
 void	print_error(int err);
+
 // utils
-int	cmp_time(const t_philo *philo);
+int	cmp_time(t_philo *philo);
 int		check_stats(t_stats *stats);
-void	ft_usleep(long sleep_time);
-long	gettime(void);
+void	ft_usleep(size_t sleep_time);
+size_t	gettime(void);
 int		get_status(t_philo *philo);
 void	set_status(t_philo *philo, int status_);
 void	*ft_calloc(size_t nmemb, size_t size);
 void	*free_data(t_data *data);
+size_t	get_lastmeal(t_philo *philo);
+void	set_time(pthread_mutex_t *lock, size_t *time, size_t value);
+size_t	get_timestamp(const t_philo *philo);
+
 // thread work
 void	*start_routine(void *arg);
 void	*monitoring(void *arg);

@@ -1,21 +1,20 @@
 #include "philo.h"
+
 static void	print_action(int status, const t_philo *philo)
 {
-	long	t;
+	size_t	t;
 
-	t = gettime();
+	t = gettime() - get_timestamp(philo);
 	if (DEAD == status)
-		printf("%ld %d died\n", t - philo->timestamp, philo->index);
+		printf("%ld %d is died\n", t, philo->index);
 	else if (EATING == status)
-		printf("%ld %d is eating\n", t - philo->timestamp, philo->index);
+		printf("%ld %d is eating\n", t, philo->index);
 	else if (SLEEP == status)
-		printf("%ld %d is sleep\n", t - philo->timestamp, philo->index);
+		printf("%ld %d is sleep\n", t, philo->index);
 	else if (FORK == status)
-		printf("%ld %d has taken a fork\n", t - philo->timestamp, philo->index);
+		printf("%ld %d has taken a fork\n", t, philo->index);
 	else if (THINK == status)
-		printf("%ld %d is thinking\n", t - philo->timestamp, philo->index);
-	else
-		printf("Error: unexpected status\n");
+		printf("%ld %d is thinking\n", t, philo->index);
 }
 
 
@@ -39,7 +38,7 @@ static int	handle_status(int status, t_philo *philo)
 	else if (EATING == status)
 	{
 		philo->eat_count++;
-		philo->lastmeal = gettime();
+		set_time(philo->lock, &philo->lastmeal, gettime());
 		ft_usleep(philo->stats->tte);
 	}
 	return (0);
@@ -55,9 +54,9 @@ static void    *handle_one(t_philo *philo)
 	return (NULL);
 }
 
-int	cmp_time(const t_philo *philo)
+int	cmp_time(t_philo *philo)
 {
-	return (philo->stats->ttd < (gettime() - philo->lastmeal));
+	return ((size_t)philo->stats->ttd < (gettime() - get_lastmeal(philo)));
 }
 
 static int	try_eat(t_philo *philo)
