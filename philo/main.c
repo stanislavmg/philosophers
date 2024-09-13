@@ -13,7 +13,7 @@ int	main(int argc, char **argv)
 		pthread_join(data->threads[i], status);
 	else
 		return (1);
-	while(++i < data->stats->philo_num + 1)
+	while(++i < data->stats->philo_num)
 		pthread_join(data->threads[i], &status);
 	free_data(data);
 	return (0);

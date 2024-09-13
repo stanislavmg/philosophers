@@ -15,7 +15,7 @@ t_data	*init(int argc, char **argv)
 	data->all_philo = init_philo(data, data->stats->philo_num);
 	if (!data->all_philo)
 		return (data);
-	data->threads = (pthread_t *)malloc(sizeof(pthread_t) * (data->stats->philo_num + 1));
+	data->threads = (pthread_t *)malloc(sizeof(pthread_t) * (data->stats->philo_num));
 	if (!data->threads)
 		return (data);
 	if (init_threads(data->threads, data->all_philo, data->stats->philo_num))
@@ -35,7 +35,10 @@ t_stats	*init_stats(int argc, char **argv)
 	stats = (t_stats *)ft_calloc(1, sizeof(t_stats));
 	if (!stats)
 		return (NULL);
+	stats->lock = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
+	pthread_mutex_init(stats->lock, NULL);
 	stats->philo_num = ft_atoi(argv[1]);
+	stats->thread_count = stats->philo_num;
 	stats->ttd = ft_atoi(argv[2]);
 	stats->tte = ft_atoi(argv[3]);
 	stats->tts = ft_atoi(argv[4]);
@@ -102,19 +105,20 @@ t_philo	*init_philo(t_data *data, int num)
 int	init_threads(pthread_t *th, t_philo *philo, int n)
 {
 	int		i;
-	size_t	start_time;
+	t_ulong	start_time;
 
 	i = -1;
-	if (pthread_create(th, NULL, monitoring, philo))
-		return (1);
-	usleep(1e3);
+	// if (pthread_create(th, NULL, monitoring, philo))
+	// 	return (1);
+	//usleep(1e3);
 	start_time = gettime();
 	while (++i < n)
 	{
 		set_time(philo->lock, &philo[i].lastmeal, start_time);
 		set_time(philo->lock, &philo[i].timestamp, start_time);
-		if (pthread_create(++th, NULL, start_routine, philo + i))
+		if (pthread_create(th++, NULL, start_routine, philo + i))
 			return (1);
 	}
+	monitoring((void *)philo);
 	return (0);
 }

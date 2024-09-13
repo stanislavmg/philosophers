@@ -1,10 +1,10 @@
 #include "philo.h"
 
-void	*ft_calloc(size_t nmemb, size_t size)
+void	*ft_calloc(t_ulong nmemb, t_ulong size)
 {
 	char	*pt;
-	size_t	i;
-	size_t	n;
+	t_ulong	i;
+	t_ulong	n;
 
 	i = 0;
 	n = size * nmemb;
@@ -16,7 +16,7 @@ void	*ft_calloc(size_t nmemb, size_t size)
 	return ((void *)pt);
 }
 
-size_t	gettime(void)
+t_ulong	gettime(void)
 {
 	struct timeval	tv;
 
@@ -34,11 +34,13 @@ void	*free_data(t_data *data)
 	if (data->stats)
 	{
 		pthread_mutex_destroy(data->write);
+		pthread_mutex_destroy(data->stats->lock);
 		while (++i < data->stats->philo_num)
 		{
 			pthread_mutex_destroy(data->locks + i);
 			pthread_mutex_destroy(data->forks + i);
 		}
+		free(data->stats->lock);
 	}
 	free(data->forks);
 	free(data->threads);
@@ -49,9 +51,9 @@ void	*free_data(t_data *data)
 	return (NULL);
 }
 
-void	ft_usleep(size_t sleep_time)
+void	ft_usleep(t_ulong sleep_time)
 {
-	size_t	start;
+	t_ulong	start;
 
 	start = gettime();
 	while ((gettime() - start) < sleep_time)
@@ -60,6 +62,8 @@ void	ft_usleep(size_t sleep_time)
 
 int	check_stats(t_stats *stats)
 {
+	if (stats->eat_limit == 0 || stats->philo_num == 0)
+		return (1);
 	if (stats->ttd < 0 ||
 		stats->tte < 0 ||
 		stats->tts < 0 ||

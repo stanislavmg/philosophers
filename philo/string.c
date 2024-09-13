@@ -18,10 +18,10 @@ void	print_error(int err)
 		printf("Unexpected error\n");
 }
 
-size_t	ft_atoi(char *s)
+t_ulong	ft_atoi(char *s)
 {
 	int		i;
-	size_t	res;
+	t_ulong	res;
 
 	i = 0;
 	res = 0;

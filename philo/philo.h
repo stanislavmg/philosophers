@@ -14,6 +14,8 @@
 # include <pthread.h>
 # include <sys/time.h>
 
+typedef unsigned long long t_ulong;
+
 typedef enum e_status
 {
 	THINK,
@@ -27,11 +29,13 @@ typedef enum e_status
 
 typedef struct s_stats
 {
-	int	philo_num;
-	int	eat_limit;
-	int	ttd; // time to die
-	int	tte; // time to eat
-	int	tts; // time to sleep
+	pthread_mutex_t	*lock;
+	int				thread_count;
+	int				philo_num;
+	int				eat_limit;
+	int				ttd; // time to die
+	int				tte; // time to eat
+	int				tts; // time to sleep
 }	t_stats;
 
 typedef struct s_philo
@@ -39,8 +43,8 @@ typedef struct s_philo
 	int				index;
 	int				eat_count;
 	int				status;
-	size_t		lastmeal;
-	size_t		timestamp;
+	t_ulong			lastmeal;
+	t_ulong			timestamp;
 	t_stats			*stats;
 	pthread_mutex_t *write;
 	pthread_mutex_t	*lock;
@@ -66,24 +70,27 @@ int 	init_mutex(t_data *data, int num);
 int		init_threads(pthread_t *th, t_philo *philo, int n);
 
 // string
-size_t	ft_atoi(char *s);
+t_ulong	ft_atoi(char *s);
 void	print_error(int err);
 
 // utils
 int	cmp_time(t_philo *philo);
 int		check_stats(t_stats *stats);
-void	ft_usleep(size_t sleep_time);
-size_t	gettime(void);
+void	ft_usleep(t_ulong sleep_time);
+t_ulong	gettime(void);
 int		get_status(t_philo *philo);
 void	set_status(t_philo *philo, int status_);
-void	*ft_calloc(size_t nmemb, size_t size);
+void	*ft_calloc(t_ulong nmemb, t_ulong size);
 void	*free_data(t_data *data);
-size_t	get_lastmeal(t_philo *philo);
-void	set_time(pthread_mutex_t *lock, size_t *time, size_t value);
-size_t	get_timestamp(const t_philo *philo);
+t_ulong	get_lastmeal(t_philo *philo);
+void	set_time(pthread_mutex_t *lock, t_ulong *time, t_ulong value);
+t_ulong	get_timestamp(const t_philo *philo);
 
 // thread work
 void	*start_routine(void *arg);
 void	*monitoring(void *arg);
 
+void	decrease_thread_count(int *count, pthread_mutex_t *lock);
+int		get_thread_count(int *count, pthread_mutex_t *lock);
+void	sync_threads(t_philo *philo);
 #endif
