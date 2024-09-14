@@ -1,20 +1,54 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   monitor.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/09/14 14:35:18 by sgoremyk          #+#    #+#             */
+/*   Updated: 2024/09/14 14:53:19 by sgoremyk         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
-void	set_status(t_philo *philo, int status_)
+static int	check_full(t_philo *philo);
+
+void	monitoring(t_philo *philo)
 {
-	pthread_mutex_lock(philo->lock);
-	philo->status = status_;
-	pthread_mutex_unlock(philo->lock);
+	int			i;
+	t_ulong		tmp;
+	t_status	cs;
+
+	tmp = get_timestamp(philo);
+	while (!check_full(philo))
+	{
+		i = -1;
+		while (++i < philo->stats->philo_num)
+		{
+			cs = get_status(philo + i);
+			if (cmp_time(philo + i) && cs != EATING && cs != FULL)
+			{
+				pthread_mutex_lock(philo->write);
+				set_status(philo + i, DEAD);
+				printf("%llu %d is died\n", gettime() - tmp, i + 1);
+				i = -1;
+				while (++i < philo->stats->philo_num)
+					set_status(philo + i, STOP);
+				pthread_mutex_unlock(philo->write);
+			}
+		}
+	}
 }
 
-int	get_status(t_philo *philo)
+int	cmp_time(t_philo *philo)
 {
-	int	rval;
+	t_ulong	tmp;
+	t_ulong	ttd;
 
-	pthread_mutex_lock(philo->lock);
-	rval = philo->status;
-	pthread_mutex_unlock(philo->lock);
-	return (rval);
+	tmp = (gettime() - get_lastmeal(philo));
+	ttd = (t_ulong)philo->stats->ttd;
+	return (ttd < tmp);
 }
 
 static int	check_full(t_philo *philo)
@@ -28,49 +62,4 @@ static int	check_full(t_philo *philo)
 			return (0);
 	}
 	return (1);
-}
-
-t_ulong	get_lastmeal(t_philo *philo)
-{
-	t_ulong	rval;
-
-	pthread_mutex_lock(philo->lock);
-	rval = philo->lastmeal;
-	pthread_mutex_unlock(philo->lock);
-	return (rval);
-}
-
-void	*monitoring(void *arg)
-{
-	int			i;
-	t_philo		*philo;
-	t_ulong		tmp;
-	t_status	cs;
-
-	philo = (t_philo *)arg;
-	tmp = get_timestamp(philo);
-	ft_usleep(200);
-	while (!check_full(philo))
-	{
-		i = -1;
-		while (++i < philo->stats->philo_num)
-		{
-			cs = get_status(philo + i);
-			if (cmp_time(philo + i) && cs != EATING)
-			{
-				pthread_mutex_lock(philo->write);
-				set_status(philo + i, DEAD);
-				printf("monitor: philo #%i:\nlastmeal = %llu\ntmsp = %llu\ndifference = %llu\n", i + 1,
-						 get_lastmeal(philo + i), gettime(), gettime() - get_lastmeal(philo + i));
-				cs = DEAD;
-				printf("%llu %d is died\n", gettime() - tmp, i + 1);
-				i = -1;
-				while (++i < philo->stats->philo_num)
-					set_status(philo + i, STOP);
-				pthread_mutex_unlock(philo->write);
-				return (NULL);
-			}
-		}
-	}
-	return (NULL);
 }

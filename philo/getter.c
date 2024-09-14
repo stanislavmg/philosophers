@@ -1,27 +1,53 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   setter.c                                           :+:      :+:    :+:   */
+/*   getter.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/09/14 14:35:25 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/14 14:50:11 by sgoremyk         ###   ########.fr       */
+/*   Created: 2024/09/14 14:48:18 by sgoremyk          #+#    #+#             */
+/*   Updated: 2024/09/14 14:48:19 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	set_time(pthread_mutex_t *lock, t_ulong *time, t_ulong value)
+t_ulong	get_timestamp(const t_philo *philo)
 {
-	pthread_mutex_lock(lock);
-	*time = value;
-	pthread_mutex_unlock(lock);
+	t_ulong	rval;
+
+	pthread_mutex_lock(philo->lock);
+	rval = philo->timestamp;
+	pthread_mutex_unlock(philo->lock);
+	return (rval);
 }
 
-void	set_status(t_philo *philo, int status_)
+int	get_thread_count(int *count, pthread_mutex_t *lock)
 {
+	int	rval;
+
+	pthread_mutex_lock(lock);
+	rval = *count;
+	pthread_mutex_unlock(lock);
+	return (rval);
+}
+
+int	get_status(t_philo *philo)
+{
+	int	rval;
+
 	pthread_mutex_lock(philo->lock);
-	philo->status = status_;
+	rval = philo->status;
 	pthread_mutex_unlock(philo->lock);
+	return (rval);
+}
+
+t_ulong	get_lastmeal(t_philo *philo)
+{
+	t_ulong	rval;
+
+	pthread_mutex_lock(philo->lock);
+	rval = philo->lastmeal;
+	pthread_mutex_unlock(philo->lock);
+	return (rval);
 }

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/09/14 15:03:07 by sgoremyk          #+#    #+#             */
+/*   Updated: 2024/09/14 16:45:23 by sgoremyk         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo_bonus.h"
 
 static int	check_str(char *s)
@@ -24,6 +36,7 @@ static int	check_str(char *s)
 		return (1);
 	return (0);
 }
+
 void	free_philo(t_philo *philo)
 {
 	sem_unlink(SEM_NAME);
@@ -46,7 +59,7 @@ int	valid_args(int argc, char **argv)
 	return (0);
 }
 
-size_t	gettime(void)
+t_ulong	gettime(void)
 {
 	struct timeval	tv;
 
@@ -54,9 +67,9 @@ size_t	gettime(void)
 	return ((tv.tv_sec * 1e3) + (tv.tv_usec / 1e3));
 }
 
-void	ft_usleep(size_t sleep_time)
+void	ft_usleep(t_ulong sleep_time)
 {
-	size_t	start;
+	t_ulong	start;
 
 	start = gettime();
 	while ((gettime() - start) < sleep_time)

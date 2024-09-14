@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   string.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/09/14 15:03:05 by sgoremyk          #+#    #+#             */
+/*   Updated: 2024/09/14 16:45:23 by sgoremyk         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo_bonus.h"
 
-// static size_t	ft_strlen(const char *s)
+// static t_ulong	ft_strlen(const char *s)
 // {
 // 	const char	*end;
 
@@ -12,7 +24,7 @@
 
 // static void	ft_putstr_fd(const char *s, int fd)
 // {
-// 	size_t	i;
+// 	t_ulong	i;
 
 // 	if (!s)
 // 		return ;

@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/09/14 14:35:37 by sgoremyk          #+#    #+#             */
+/*   Updated: 2024/09/14 14:48:53 by sgoremyk         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 void	*ft_calloc(t_ulong nmemb, t_ulong size)
@@ -14,14 +26,6 @@ void	*ft_calloc(t_ulong nmemb, t_ulong size)
 	while (i < n)
 		pt[i++] = 0;
 	return ((void *)pt);
-}
-
-t_ulong	gettime(void)
-{
-	struct timeval	tv;
-
-	gettimeofday(&tv, NULL);
-	return ((tv.tv_sec * 1e3) + (tv.tv_usec / 1e3));
 }
 
 void	*free_data(t_data *data)
@@ -64,14 +68,22 @@ int	check_stats(t_stats *stats)
 {
 	if (stats->eat_limit == 0 || stats->philo_num == 0)
 		return (1);
-	if (stats->ttd < 0 ||
-		stats->tte < 0 ||
-		stats->tts < 0 ||
-		stats->philo_num < 0 ||
-		(stats->eat_limit < 0 && stats->eat_limit != UNDEFINED))
+	if (stats->ttd < 0
+		|| stats->tte < 0
+		|| stats->tts < 0
+		|| stats->philo_num < 0
+		|| (stats->eat_limit < 0 && stats->eat_limit != UNDEFINED))
 	{
 		printf("Incorrect arguments\n");
 		return (1);
 	}
 	return (0);
+}
+
+t_ulong	gettime(void)
+{
+	struct timeval	tv;
+
+	gettimeofday(&tv, NULL);
+	return ((tv.tv_sec * 1e3) + (tv.tv_usec / 1e3));
 }

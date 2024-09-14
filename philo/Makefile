@@ -1,8 +1,8 @@
 NAME = philo
 INCLUDE = philo.h
-CFLAGS = -Wall -Wextra -Werror -O3 #-fsanitize=thread -fsanitize=undefined -g
+CFLAGS = -Wall -Wextra -Werror #-fsanitize=address -fsanitize=undefined -g
 LDFLAGS = -lpthread
-SRC = main.c init.c string.c utils.c monitor.c thread_work.c setter.c
+SRC = main.c init.c string.c utils.c monitor.c thread_work.c setter.c getter.c
 OBJ = $(SRC:%.c=%.o)
 
 all: $(NAME)

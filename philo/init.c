@@ -1,27 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/09/14 14:35:09 by sgoremyk          #+#    #+#             */
+/*   Updated: 2024/09/14 15:01:13 by sgoremyk         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
-t_data	*init(int argc, char **argv)
-{
-	t_data *data;
-
-	data = (t_data *)ft_calloc(1, sizeof(t_data));
-	if (!data)
-		return (NULL);
-	data->stats = init_stats(argc, argv);
-	if (!data->stats)
-		return (free_data(data));
-	if (init_mutex(data, data->stats->philo_num))
-		return (data);
-	data->all_philo = init_philo(data, data->stats->philo_num);
-	if (!data->all_philo)
-		return (data);
-	data->threads = (pthread_t *)malloc(sizeof(pthread_t) * (data->stats->philo_num));
-	if (!data->threads)
-		return (data);
-	if (init_threads(data->threads, data->all_philo, data->stats->philo_num))
-		return (data);
-	return (data);
-}
+static void	fill_stats(t_stats *stats, char **argv);
 
 t_stats	*init_stats(int argc, char **argv)
 {
@@ -35,6 +26,17 @@ t_stats	*init_stats(int argc, char **argv)
 	stats = (t_stats *)ft_calloc(1, sizeof(t_stats));
 	if (!stats)
 		return (NULL);
+	fill_stats(stats, argv);
+	if (check_stats(stats))
+	{
+		free(stats);
+		return (NULL);
+	}
+	return (stats);
+}
+
+static void	fill_stats(t_stats *stats, char **argv)
+{
 	stats->lock = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
 	pthread_mutex_init(stats->lock, NULL);
 	stats->philo_num = ft_atoi(argv[1]);
@@ -46,28 +48,21 @@ t_stats	*init_stats(int argc, char **argv)
 		stats->eat_limit = ft_atoi(argv[5]);
 	else
 		stats->eat_limit = UNDEFINED;
-	if (check_stats(stats))
-	{
-		free(stats);
-		return (NULL);
-	}
-	return (stats);
 }
 
-int init_mutex(t_data *data, int num)
+int	init_mutex(t_data *data, int num)
 {
 	int				i;
 
 	i = 0;
-	// one time malloc for all mutexes
 	data->forks = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t) * num * 2);
 	if (!data->forks)
 		return (1);
 	data->locks = data->forks + num;
 	while (i < num)
 	{
-		if (pthread_mutex_init(data->forks + i, NULL) ||
-			pthread_mutex_init(data->locks + i, NULL))
+		if (pthread_mutex_init(data->forks + i, NULL)
+			|| pthread_mutex_init(data->locks + i, NULL))
 			return (1);
 		i++;
 	}
@@ -78,7 +73,7 @@ t_philo	*init_philo(t_data *data, int num)
 {
 	int				i;
 	t_philo			*philo;
-	pthread_mutex_t *t;
+	pthread_mutex_t	*t;
 
 	i = -1;
 	philo = (t_philo *)ft_calloc(num, sizeof(t_philo));
@@ -95,7 +90,6 @@ t_philo	*init_philo(t_data *data, int num)
 		philo[i].left = &data->forks[i];
 		philo[i].right = &data->forks[(i + 1) % num];
 	}
-	// swap the last philosopher's forks to prevent a deadlock
 	t = philo[i - 1].right;
 	philo[i - 1].right = philo[i - 1].left;
 	philo[i - 1].left = t;
@@ -108,9 +102,6 @@ int	init_threads(pthread_t *th, t_philo *philo, int n)
 	t_ulong	start_time;
 
 	i = -1;
-	// if (pthread_create(th, NULL, monitoring, philo))
-	// 	return (1);
-	//usleep(1e3);
 	start_time = gettime();
 	while (++i < n)
 	{

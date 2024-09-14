@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   init.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/09/14 15:02:55 by sgoremyk          #+#    #+#             */
+/*   Updated: 2024/09/14 15:03:30 by sgoremyk         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo_bonus.h"
 
 static t_stats	*init_stats(char **argv)
@@ -22,7 +34,7 @@ static t_philo	*init_philo(t_stats *st)
 {
 	int		i;
 	t_philo	*philo;
-	
+
 	i = -1;
 	philo = (t_philo *)malloc(sizeof(t_philo) * st->philo_num);
 	if (!philo)

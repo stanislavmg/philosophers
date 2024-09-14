@@ -1,34 +1,89 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   routine.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/09/14 15:03:02 by sgoremyk          #+#    #+#             */
+/*   Updated: 2024/09/14 16:45:46 by sgoremyk         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo_bonus.h"
+
+// static int	handle_status(t_status status, t_philo *philo)
+// {
+// 	int		cur_status;
+
+// 	pthread_mutex_lock(philo->write);
+// 	cur_status = get_status(philo);
+// 	if (STOP == cur_status || DEAD == cur_status || FULL == cur_status)
+// 	{
+// 		pthread_mutex_unlock(philo->write);
+// 		return (1);
+// 	}
+// 	print_action(status, philo);
+// 	pthread_mutex_unlock(philo->write);
+// 	if (DEAD == status)
+// 		set_status(philo, status);
+// 	else if (SLEEP == status)
+// 		ft_usleep(philo->stats->tts);
+// 	else if (EATING == status)
+// 	{
+// 		philo->eat_count++;
+// 		if (philo->eat_count == philo->stats->eat_limit)
+// 			set_status(philo, FULL);
+// 		ft_usleep(philo->stats->tte);
+// 		set_time(philo->lock, &philo->lastmeal, gettime());
+// 	}
+// 	return (0);
+// }
+
+// static void	print_action(int status, const t_philo *philo)
+// {
+// 	t_ulong	t;
+
+// 	t = gettime() - get_timestamp(philo);
+// 	if (EATING == status)
+// 		printf("%llu %d is eating\n", t, philo->index);
+// 	else if (SLEEP == status)
+// 		printf("%llu %d is sleep\n", t, philo->index);
+// 	else if (FORK == status)
+// 		printf("%llu %d has taken a fork\n", t, philo->index);
+// 	else if (THINK == status)
+// 		printf("%llu %d is thinking\n", t, philo->index);
+// }
 
 static int	handle_status(int status, t_philo *philo)
 {
-	size_t	t;
+	t_ulong	t;
 
 	t = gettime();
 	if (STOP == philo->status)
 		return (1);
 	else if (DEAD == status)
 	{
-		printf("%ld %d died\n", t - philo->timestamp, philo->index);
+		printf("%lld %d died\n", t - philo->timestamp, philo->index);
 		philo->status = status;
 		return (1);
 	}
 	else if (EATING == status)
 	{
-		printf("%ld %d is eating\n", t - philo->timestamp, philo->index);
+		printf("%lld %d is eating\n", t - philo->timestamp, philo->index);
 		philo->eat_count++;
 		philo->lastmeal = t;
 		ft_usleep(philo->stats->tte);
 	}
 	else if (SLEEP == status)
 	{
-		printf("%ld %d is sleep\n", t - philo->timestamp, philo->index);
+		printf("%lld %d is sleep\n", t - philo->timestamp, philo->index);
 		ft_usleep(philo->stats->tts);
 	}
 	else if (FORK == status)
-		printf("%ld %d has taken a fork\n", t - philo->timestamp, philo->index);
+		printf("%lld %d has taken a fork\n", t - philo->timestamp, philo->index);
 	else if (THINK == status)
-		printf("%ld %d is thinking\n", t - philo->timestamp, philo->index);
+		printf("%lld %d is thinking\n", t - philo->timestamp, philo->index);
 	else
 		printf("Error: unexpected status\n");
 	return (0);
@@ -68,7 +123,7 @@ void	*start_routine(t_philo	*philo)
 {
 	philo->forks = sem_open(SEM_NAME, 0);
 	if (philo->forks == SEM_FAILED)
-        exit (2);
+		exit (2);
 	if (philo->index % 2 == 0)
 		ft_usleep(philo->stats->tte);
 	while (1)
@@ -98,16 +153,16 @@ void	*start_routine(t_philo	*philo)
 	exit(1);
 }
 
-void    handle_one(t_philo *philo)
+void	handle_one(t_philo *philo)
 {
-    philo->forks = sem_open(SEM_NAME, 0);
+	philo->forks = sem_open(SEM_NAME, 0);
 	if (philo->forks == SEM_FAILED)
-        exit (2);
+		exit (2);
 	sem_wait(philo->forks);
 	handle_status(FORK, philo);
-    ft_usleep(philo->stats->ttd);
+	ft_usleep(philo->stats->ttd);
 	handle_status(DEAD, philo);
 	sem_post(philo->forks);
 	sem_close(philo->forks);
-    exit(0);
+	exit(0);
 }

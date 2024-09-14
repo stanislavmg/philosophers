@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo.h                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/09/14 14:35:22 by sgoremyk          #+#    #+#             */
+/*   Updated: 2024/09/14 14:53:26 by sgoremyk         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef PHILO_H
 # define PHILO_H
 
@@ -14,7 +26,7 @@
 # include <pthread.h>
 # include <sys/time.h>
 
-typedef unsigned long long t_ulong;
+typedef long long	t_ulong;
 
 typedef enum e_status
 {
@@ -46,7 +58,7 @@ typedef struct s_philo
 	t_ulong			lastmeal;
 	t_ulong			timestamp;
 	t_stats			*stats;
-	pthread_mutex_t *write;
+	pthread_mutex_t	*write;
 	pthread_mutex_t	*lock;
 	pthread_mutex_t	*left;
 	pthread_mutex_t	*right;
@@ -66,7 +78,7 @@ typedef struct s_data
 t_data	*init(int argc, char **argv);
 t_stats	*init_stats(int argc, char **argv);
 t_philo	*init_philo(t_data *data, int num);
-int 	init_mutex(t_data *data, int num);
+int		init_mutex(t_data *data, int num);
 int		init_threads(pthread_t *th, t_philo *philo, int n);
 
 // string
@@ -74,23 +86,25 @@ t_ulong	ft_atoi(char *s);
 void	print_error(int err);
 
 // utils
-int	cmp_time(t_philo *philo);
+int		cmp_time(t_philo *philo);
 int		check_stats(t_stats *stats);
 void	ft_usleep(t_ulong sleep_time);
-t_ulong	gettime(void);
-int		get_status(t_philo *philo);
-void	set_status(t_philo *philo, int status_);
 void	*ft_calloc(t_ulong nmemb, t_ulong size);
 void	*free_data(t_data *data);
-t_ulong	get_lastmeal(t_philo *philo);
-void	set_time(pthread_mutex_t *lock, t_ulong *time, t_ulong value);
-t_ulong	get_timestamp(const t_philo *philo);
+t_ulong	gettime(void);
 
 // thread work
 void	*start_routine(void *arg);
-void	*monitoring(void *arg);
+void	monitoring(t_philo *philo);
 
-void	decrease_thread_count(int *count, pthread_mutex_t *lock);
+// save setter
+void	set_status(t_philo *philo, int status_);
+void	set_time(pthread_mutex_t *lock, t_ulong *time, t_ulong value);
+
+// save getter
 int		get_thread_count(int *count, pthread_mutex_t *lock);
-void	sync_threads(t_philo *philo);
+int		get_status(t_philo *philo);
+t_ulong	get_lastmeal(t_philo *philo);
+t_ulong	get_timestamp(const t_philo *philo);
+
 #endif

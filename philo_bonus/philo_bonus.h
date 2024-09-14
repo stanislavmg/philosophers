@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo_bonus.h                                      :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/09/14 15:02:50 by sgoremyk          #+#    #+#             */
+/*   Updated: 2024/09/14 16:45:23 by sgoremyk         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef PHILO_BONUS_H
 # define PHILO_BONUS_H
 # define UNDEFINED	-5
@@ -10,6 +22,7 @@
 # include <sys/time.h>
 # include <signal.h>
 
+typedef long long	t_ulong;
 typedef enum e_status
 {
 	EATING,
@@ -35,21 +48,21 @@ typedef struct s_philo
 	int				index;
 	int				eat_count;
 	int				status;
-	size_t			lastmeal;
-	size_t			timestamp;
-    pid_t           pid;
-    sem_t           *forks;
+	t_ulong			lastmeal;
+	t_ulong			timestamp;
+	pid_t			pid;
+	sem_t			*forks;
 	t_stats			*stats;
 }	t_philo;
 
-int 	init(char **argv, t_philo **philo);
-int 	ft_atoi(const char *str);
-size_t	gettime(void);
+int		init(char **argv, t_philo **philo);
+int		ft_atoi(const char *str);
+t_ulong	gettime(void);
 void	free_philo(t_philo *philo);
-int 	valid_args(int argc, char **argv);
-void	ft_usleep(size_t sleep_time);
+int		valid_args(int argc, char **argv);
+void	ft_usleep(t_ulong sleep_time);
 void	*start_routine(t_philo	*philo);
-void    start_work(t_philo *philo);
-void    handle_one(t_philo *philo);
+void	start_work(t_philo *philo);
+void	handle_one(t_philo *philo);
 
 #endif
