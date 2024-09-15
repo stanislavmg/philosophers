@@ -6,7 +6,7 @@
 /*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 15:02:58 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/14 15:53:47 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/15 17:55:03 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,8 +19,7 @@ int	main(int argc, char **argv)
 	philo = NULL;
 	if (valid_args(argc, argv))
 		return (1);
-	init(argv, &philo);
-	if (!philo)
+	if (init(argv, &philo))
 		return (1);
 	start_work(philo);
 	free_philo(philo);
@@ -31,13 +30,16 @@ void	start_work(t_philo *philo)
 {
 	int		i;
 	int		status;
-	sem_t	*sem;
+	sem_t	*sem_write;
+	sem_t	*sem_forks;
 
 	i = 0;
 	status = 0;
-	sem_unlink(SEM_NAME);
-	sem = sem_open(SEM_NAME, O_CREAT, 0644, philo->stats->philo_num);
-	if (sem == SEM_FAILED)
+	sem_unlink(SEM_FORK);
+	sem_unlink(SEM_WRITE);
+	sem_forks = sem_open(SEM_FORK, O_CREAT, 0644, philo->stats->philo_num);
+	sem_write = sem_open(SEM_WRITE, O_CREAT, 0644, 1);
+	if (sem_forks == SEM_FAILED || sem_write == SEM_FAILED)
 		return ;
 	philo->timestamp = gettime();
 	while (i < philo->stats->philo_num)
@@ -55,11 +57,13 @@ void	start_work(t_philo *philo)
 	while (++i < philo->stats->philo_num)
 	{
 		wait(&status);
-		if (status)
+		if (WEXITSTATUS(status) == 1)
 		{
+			//sem_wait(sem_write);
 			i = -1;
 			while (++i < philo->stats->philo_num)
 				kill(philo[i].pid, SIGTERM);
+			//sem_post(sem_write);
 		}
 	}
 }

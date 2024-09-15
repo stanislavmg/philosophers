@@ -6,7 +6,7 @@
 /*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 15:03:07 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/14 16:45:23 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/15 18:06:17 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ static int	check_str(char *s)
 
 void	free_philo(t_philo *philo)
 {
-	sem_unlink(SEM_NAME);
+	sem_unlink(SEM_FORK);
 	free(philo->stats);
 	free(philo);
 }
@@ -67,11 +67,16 @@ t_ulong	gettime(void)
 	return ((tv.tv_sec * 1e3) + (tv.tv_usec / 1e3));
 }
 
-void	ft_usleep(t_ulong sleep_time)
+int	ft_usleep(t_ulong sleep_time, t_philo *philo)
 {
 	t_ulong	start;
 
 	start = gettime();
 	while ((gettime() - start) < sleep_time)
+	{
+		if (cmp_time(philo))
+			return (handle_status(DEAD, philo));
 		usleep(500);
+	}
+	return (0);
 }

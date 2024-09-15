@@ -6,7 +6,7 @@
 /*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 14:35:18 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/14 14:53:19 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/15 16:36:12 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ void	monitoring(t_philo *philo)
 				while (++i < philo->stats->philo_num)
 					set_status(philo + i, STOP);
 				pthread_mutex_unlock(philo->write);
+				return ;
 			}
 		}
 	}

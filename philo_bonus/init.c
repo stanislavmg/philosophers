@@ -6,7 +6,7 @@
 /*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 15:02:55 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/14 15:03:30 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/15 17:30:17 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,8 @@ static t_philo	*init_philo(t_stats *st)
 	t_philo	*philo;
 
 	i = -1;
+	if (!st)
+		return (NULL);
 	philo = (t_philo *)malloc(sizeof(t_philo) * st->philo_num);
 	if (!philo)
 		return (NULL);
@@ -46,6 +48,7 @@ static t_philo	*init_philo(t_stats *st)
 		philo[i].status = THINK;
 		philo[i].stats = st;
 		philo[i].forks = 0;
+		philo[i].sem_write = 0;
 	}
 	return (philo);
 }
@@ -54,12 +57,12 @@ int	init(char **argv, t_philo **philo)
 {
 	t_stats	*st;
 
-	st = NULL;
 	st = init_stats(argv);
-	if (!st)
-		return (1);
 	*philo = init_philo(st);
 	if (!philo)
+	{
+		free(st);
 		return (1);
+	}
 	return (0);
 }
