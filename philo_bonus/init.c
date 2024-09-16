@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: sgoremyk <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 15:02:55 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/15 17:30:17 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/16 12:11:26 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ static t_philo	*init_philo(t_stats *st)
 		philo[i].status = THINK;
 		philo[i].stats = st;
 		philo[i].forks = 0;
-		philo[i].sem_write = 0;
+		philo[i].lock = 0;
 	}
 	return (philo);
 }

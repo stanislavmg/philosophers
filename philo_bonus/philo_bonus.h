@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo_bonus.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: sgoremyk <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 15:02:50 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/15 17:28:38 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/16 13:11:01 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 # define PHILO_BONUS_H
 # define UNDEFINED	-5
 # define SEM_FORK "/test1"
-# define SEM_WRITE "/test2"
+# define SEM_LOCK "/test2"
 
 # include <semaphore.h>
 # include <stdlib.h>
@@ -24,6 +24,7 @@
 # include <signal.h>
 
 typedef long long	t_ulong;
+
 typedef enum e_status
 {
 	EATING,
@@ -53,7 +54,7 @@ typedef struct s_philo
 	t_ulong			timestamp;
 	pid_t			pid;
 	sem_t			*forks;
-	sem_t			*sem_write;
+	sem_t			*lock;
 	t_stats			*stats;
 }	t_philo;
 
@@ -68,5 +69,6 @@ void	start_work(t_philo *philo);
 void	handle_one(t_philo *philo);
 int		cmp_time(t_philo *philo);
 int		handle_status(t_status status, t_philo *philo);
+int		check_str(char *s);
 
 #endif

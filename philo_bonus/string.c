@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   string.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: sgoremyk <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 15:03:05 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/14 16:45:23 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/16 13:10:51 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,4 +57,29 @@ int	ft_atoi(const char *str)
 		i++;
 	}
 	return (res * sign);
+}
+
+int	check_str(char *s)
+{
+	int	i;
+	int	count;
+
+	i = 0;
+	count = 0;
+	while ((s[i] >= '\t' && s[i] <= '\r') || s[i] == ' ')
+		i++;
+	if (s[i] == '-' || s[i] == '+')
+		i++;
+	while ('0' == s[i])
+		i++;
+	while (s[i] && (s[i] >= '0' && s[i] <= '9'))
+	{
+		i++;
+		count++;
+	}
+	while (s[i] && ((s[i] >= '\t' && s[i] <= '\r') || s[i] == ' '))
+		i++;
+	if (s[i] || count > 10 || 0 == count)
+		return (1);
+	return (0);
 }

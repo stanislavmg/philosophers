@@ -3,43 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: sgoremyk <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 15:03:07 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/15 18:06:17 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/16 13:07:48 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_bonus.h"
 
-static int	check_str(char *s)
-{
-	int	i;
-	int	count;
-
-	i = 0;
-	count = 0;
-	while ((s[i] >= '\t' && s[i] <= '\r') || s[i] == ' ')
-		i++;
-	if (s[i] == '-' || s[i] == '+')
-		i++;
-	while ('0' == s[i])
-		i++;
-	while (s[i] && (s[i] >= '0' && s[i] <= '9'))
-	{
-		i++;
-		count++;
-	}
-	while (s[i] && ((s[i] >= '\t' && s[i] <= '\r') || s[i] == ' '))
-		i++;
-	if (s[i] || count > 10 || 0 == count)
-		return (1);
-	return (0);
-}
-
 void	free_philo(t_philo *philo)
 {
 	sem_unlink(SEM_FORK);
+	sem_unlink(SEM_LOCK);
 	free(philo->stats);
 	free(philo);
 }
@@ -67,6 +43,16 @@ t_ulong	gettime(void)
 	return ((tv.tv_sec * 1e3) + (tv.tv_usec / 1e3));
 }
 
+int	cmp_time(t_philo *philo)
+{
+	t_ulong	tmp;
+	t_ulong	ttd;
+
+	tmp = (gettime() - philo->lastmeal);
+	ttd = (t_ulong)philo->stats->ttd;
+	return (ttd < tmp);
+}
+
 int	ft_usleep(t_ulong sleep_time, t_philo *philo)
 {
 	t_ulong	start;
@@ -74,9 +60,10 @@ int	ft_usleep(t_ulong sleep_time, t_philo *philo)
 	start = gettime();
 	while ((gettime() - start) < sleep_time)
 	{
+		(void)(philo);
 		if (cmp_time(philo))
 			return (handle_status(DEAD, philo));
-		usleep(500);
+		usleep(100);
 	}
 	return (0);
 }
