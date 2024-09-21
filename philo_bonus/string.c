@@ -3,34 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   string.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sgoremyk <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 15:03:05 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/16 13:10:51 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/21 18:53:48 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo_bonus.h"
 
-// static t_ulong	ft_strlen(const char *s)
-// {
-// 	const char	*end;
-
-// 	end = s;
-// 	while (*end)
-// 		end++;
-// 	return (end - s);
-// }
-
-// static void	ft_putstr_fd(const char *s, int fd)
-// {
-// 	t_ulong	i;
-
-// 	if (!s)
-// 		return ;
-// 	i = ft_strlen(s);
-// 	write(fd, s, i);
-// }
+static int	ft_isspace(int ch)
+{
+	return ((ch >= '\t' && ch <= '\r') || ch == ' ');
+}
 
 int	ft_atoi(const char *str)
 {
@@ -41,7 +26,7 @@ int	ft_atoi(const char *str)
 	i = 0;
 	res = 0;
 	sign = 1;
-	while ((str[i] >= '\t' && str[i] <= '\r') || str[i] == ' ')
+	while (ft_isspace(str[i]))
 		i++;
 	if (str[i] == '-')
 	{
@@ -66,18 +51,16 @@ int	check_str(char *s)
 
 	i = 0;
 	count = 0;
-	while ((s[i] >= '\t' && s[i] <= '\r') || s[i] == ' ')
+	while (ft_isspace(s[i]))
 		i++;
-	if (s[i] == '-' || s[i] == '+')
-		i++;
-	while ('0' == s[i])
+	if (s[i] == '+')
 		i++;
 	while (s[i] && (s[i] >= '0' && s[i] <= '9'))
 	{
 		i++;
 		count++;
 	}
-	while (s[i] && ((s[i] >= '\t' && s[i] <= '\r') || s[i] == ' '))
+	while (s[i] && ft_isspace(s[i]))
 		i++;
 	if (s[i] || count > 10 || 0 == count)
 		return (1);

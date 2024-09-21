@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sgoremyk <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 15:02:58 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/16 13:39:23 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/21 17:19:20 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,26 +45,13 @@ static void	run_philo(t_philo *philo)
 	}
 }
 
-void	start_work(t_philo *philo)
+static void	ft_waitpid(t_philo *philo)
 {
 	int		i;
 	int		status;
-	sem_t	*sem_forks;
-	sem_t	*sem_lock;
 
-	i = 0;
-	status = 0;
-	sem_unlink(SEM_FORK);
-	sem_unlink(SEM_LOCK);
-	sem_forks = sem_open(SEM_FORK, O_CREAT, 0644, philo->stats->philo_num);
-	sem_lock = sem_open(SEM_LOCK, O_CREAT, 0644, 1);
-	(void)sem_lock;
-	if (sem_forks == SEM_FAILED)
-		return ;
 	i = -1;
-	sem_wait(sem_lock);
-	run_philo(philo);
-	sem_post(sem_lock);
+	status = 0;
 	while (++i < philo->stats->philo_num)
 	{
 		waitpid(-1, &status, 0);
@@ -75,4 +62,22 @@ void	start_work(t_philo *philo)
 				kill(philo[i].pid, SIGTERM);
 		}
 	}
+}
+
+void	start_work(t_philo *philo)
+{
+	sem_t	*sem_forks;
+	sem_t	*sem_lock;
+
+	sem_unlink(SEM_FORK);
+	sem_unlink(SEM_LOCK);
+	sem_forks = sem_open(SEM_FORK, O_CREAT, 0644, philo->stats->philo_num);
+	sem_lock = sem_open(SEM_LOCK, O_CREAT, 0644, 1);
+	(void)sem_lock;
+	if (sem_forks == SEM_FAILED)
+		return ;
+	sem_wait(sem_lock);
+	run_philo(philo);
+	sem_post(sem_lock);
+	ft_waitpid(philo);
 }

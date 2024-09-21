@@ -6,7 +6,7 @@
 /*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 14:35:33 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/14 14:56:16 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/21 18:40:41 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,7 +103,7 @@ static int	handle_status(t_status status, t_philo *philo)
 
 static void	print_action(int status, const t_philo *philo)
 {
-	t_ulong	t;
+	t_llong	t;
 
 	t = gettime() - get_timestamp(philo);
 	if (EATING == status)

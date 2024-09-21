@@ -6,17 +6,17 @@
 /*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 14:35:37 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/14 14:48:53 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/21 18:45:52 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	*ft_calloc(t_ulong nmemb, t_ulong size)
+void	*ft_calloc(t_llong nmemb, t_llong size)
 {
 	char	*pt;
-	t_ulong	i;
-	t_ulong	n;
+	t_llong	i;
+	t_llong	n;
 
 	i = 0;
 	n = size * nmemb;
@@ -55,32 +55,16 @@ void	*free_data(t_data *data)
 	return (NULL);
 }
 
-void	ft_usleep(t_ulong sleep_time)
+void	ft_usleep(t_llong sleep_time)
 {
-	t_ulong	start;
+	t_llong	start;
 
 	start = gettime();
 	while ((gettime() - start) < sleep_time)
 		usleep(250);
 }
 
-int	check_stats(t_stats *stats)
-{
-	if (stats->eat_limit == 0 || stats->philo_num == 0)
-		return (1);
-	if (stats->ttd < 0
-		|| stats->tte < 0
-		|| stats->tts < 0
-		|| stats->philo_num < 0
-		|| (stats->eat_limit < 0 && stats->eat_limit != UNDEFINED))
-	{
-		printf("Incorrect arguments\n");
-		return (1);
-	}
-	return (0);
-}
-
-t_ulong	gettime(void)
+t_llong	gettime(void)
 {
 	struct timeval	tv;
 

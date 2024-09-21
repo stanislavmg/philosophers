@@ -6,7 +6,7 @@
 /*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 14:35:12 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/14 16:01:26 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/21 18:34:17 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,8 @@ int	main(int argc, char **argv)
 
 	i = 0;
 	status = NULL;
+	if (valid_args(argc, argv))
+		return (1);
 	data = init(argc, argv);
 	if (data)
 		pthread_join(data->threads[i], status);

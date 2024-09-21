@@ -6,7 +6,7 @@
 /*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 14:35:22 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/14 14:53:26 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/21 18:34:09 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,7 +26,7 @@
 # include <pthread.h>
 # include <sys/time.h>
 
-typedef long long	t_ulong;
+typedef long long	t_llong;
 
 typedef enum e_status
 {
@@ -45,9 +45,9 @@ typedef struct s_stats
 	int				thread_count;
 	int				philo_num;
 	int				eat_limit;
-	int				ttd; // time to die
-	int				tte; // time to eat
-	int				tts; // time to sleep
+	int				ttd;
+	int				tte;
+	int				tts;
 }	t_stats;
 
 typedef struct s_philo
@@ -55,8 +55,8 @@ typedef struct s_philo
 	int				index;
 	int				eat_count;
 	int				status;
-	t_ulong			lastmeal;
-	t_ulong			timestamp;
+	t_llong			lastmeal;
+	t_llong			timestamp;
 	t_stats			*stats;
 	pthread_mutex_t	*write;
 	pthread_mutex_t	*lock;
@@ -82,16 +82,18 @@ int		init_mutex(t_data *data, int num);
 int		init_threads(pthread_t *th, t_philo *philo, int n);
 
 // string
-t_ulong	ft_atoi(char *s);
+t_llong	ft_atoi(char *s);
 void	print_error(int err);
+int		check_str(char *s);
+int		valid_args(int argc, char **argv);
 
 // utils
 int		cmp_time(t_philo *philo);
 int		check_stats(t_stats *stats);
-void	ft_usleep(t_ulong sleep_time);
-void	*ft_calloc(t_ulong nmemb, t_ulong size);
+void	ft_usleep(t_llong sleep_time);
+void	*ft_calloc(t_llong nmemb, t_llong size);
 void	*free_data(t_data *data);
-t_ulong	gettime(void);
+t_llong	gettime(void);
 
 // thread work
 void	*start_routine(void *arg);
@@ -99,12 +101,12 @@ void	monitoring(t_philo *philo);
 
 // save setter
 void	set_status(t_philo *philo, int status_);
-void	set_time(pthread_mutex_t *lock, t_ulong *time, t_ulong value);
+void	set_time(pthread_mutex_t *lock, t_llong *time, t_llong value);
 
 // save getter
 int		get_thread_count(int *count, pthread_mutex_t *lock);
 int		get_status(t_philo *philo);
-t_ulong	get_lastmeal(t_philo *philo);
-t_ulong	get_timestamp(const t_philo *philo);
+t_llong	get_lastmeal(t_philo *philo);
+t_llong	get_timestamp(const t_philo *philo);
 
 #endif

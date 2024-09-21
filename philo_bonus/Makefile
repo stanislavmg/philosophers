@@ -1,6 +1,6 @@
 NAME = philo_bonus
 INCLUDE = philo_bonus.h
-CFLAGS = -Wall -Wextra -Werror -g3
+CFLAGS = -Wall -Wextra -Werror
 SRC = main.c init.c string.c utils.c routine.c
 OBJ = $(SRC:%.c=%.o)
 
@@ -15,6 +15,8 @@ $(NAME) : $(OBJ) $(INCLUDE)
 clean:
 	$(RM) $(OBJ)
 fclean: clean
+
 	$(RM) $(NAME)
 re: fclean all
+
 .PHONY: all clean fclean re

@@ -6,15 +6,15 @@
 /*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 14:48:18 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/14 14:48:19 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/21 16:58:55 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-t_ulong	get_timestamp(const t_philo *philo)
+t_llong	get_timestamp(const t_philo *philo)
 {
-	t_ulong	rval;
+	t_llong	rval;
 
 	pthread_mutex_lock(philo->lock);
 	rval = philo->timestamp;
@@ -42,9 +42,9 @@ int	get_status(t_philo *philo)
 	return (rval);
 }
 
-t_ulong	get_lastmeal(t_philo *philo)
+t_llong	get_lastmeal(t_philo *philo)
 {
-	t_ulong	rval;
+	t_llong	rval;
 
 	pthread_mutex_lock(philo->lock);
 	rval = philo->lastmeal;

@@ -6,7 +6,7 @@
 /*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 14:35:29 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/14 14:39:43 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/21 18:34:37 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,10 @@ void	print_error(int err)
 		printf("Unexpected error\n");
 }
 
-t_ulong	ft_atoi(char *s)
+t_llong	ft_atoi(char *s)
 {
 	int		i;
-	t_ulong	res;
+	t_llong	res;
 
 	i = 0;
 	res = 0;
@@ -57,4 +57,27 @@ t_ulong	ft_atoi(char *s)
 	if (s[i] || res > INT_MAX)
 		return (ERR_ARG);
 	return (res);
+}
+
+int	check_str(char *s)
+{
+	int	i;
+	int	count;
+
+	i = 0;
+	count = 0;
+	while (ft_isspace(s[i]))
+		i++;
+	if (s[i] == '+')
+		i++;
+	while (s[i] && (s[i] >= '0' && s[i] <= '9'))
+	{
+		i++;
+		count++;
+	}
+	while (s[i] && ft_isspace(s[i]))
+		i++;
+	if (s[i] || count > 10 || 0 == count)
+		return (1);
+	return (0);
 }

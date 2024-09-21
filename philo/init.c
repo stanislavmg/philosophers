@@ -6,7 +6,7 @@
 /*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 14:35:09 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/14 15:01:13 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/21 16:58:55 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,7 @@ t_philo	*init_philo(t_data *data, int num)
 int	init_threads(pthread_t *th, t_philo *philo, int n)
 {
 	int		i;
-	t_ulong	start_time;
+	t_llong	start_time;
 
 	i = -1;
 	start_time = gettime();

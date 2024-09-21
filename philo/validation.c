@@ -1,23 +1,31 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   validation.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/09/14 15:03:07 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/21 19:04:05 by sgoremyk         ###   ########.fr       */
+/*   Created: 2024/09/21 18:45:12 by sgoremyk          #+#    #+#             */
+/*   Updated: 2024/09/21 18:47:02 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "philo_bonus.h"
+#include "philo.h"
 
-void	free_philo(t_philo *philo)
+int	check_stats(t_stats *stats)
 {
-	sem_unlink(SEM_FORK);
-	sem_unlink(SEM_LOCK);
-	free(philo->stats);
-	free(philo);
+	if (stats->eat_limit == 0 || stats->philo_num == 0)
+		return (1);
+	if (stats->ttd < 0
+		|| stats->tte < 0
+		|| stats->tts < 0
+		|| stats->philo_num < 0
+		|| (stats->eat_limit < 0 && stats->eat_limit != UNDEFINED))
+	{
+		printf("Incorrect arguments\n");
+		return (1);
+	}
+	return (0);
 }
 
 int	valid_args(int argc, char **argv)
@@ -28,7 +36,7 @@ int	valid_args(int argc, char **argv)
 	if (argc != 5 && argc != 6)
 	{
 		printf("Incorrect number of arguments!\n"
-			"philo_bonus take the following args:\n"
+			"philo take the following args:\n"
 			"number_of_philosophers time_to_die time_to_eat time_to_sleep "
 			"[number_of_times_each_philosopher_must_eat]\n");
 		return (1);
@@ -42,40 +50,5 @@ int	valid_args(int argc, char **argv)
 			return (1);
 		}
 	}
-	return (0);
-}
-
-t_llong	gettime(void)
-{
-	struct timeval	tv;
-
-	gettimeofday(&tv, NULL);
-	return ((tv.tv_sec * 1e3) + (tv.tv_usec / 1e3));
-}
-
-int	cmp_time(t_philo *philo)
-{
-	t_llong	tmp;
-	t_llong	ttd;
-
-	tmp = (gettime() - philo->lastmeal);
-	ttd = (t_llong)philo->stats->ttd;
-	return (ttd < tmp);
-}
-
-int	ft_usleep(t_llong sleep_time, t_philo *philo)
-{
-	t_llong	start;
-
-	start = gettime();
-	while ((gettime() - start) < sleep_time)
-	{
-		(void)(philo);
-		if (cmp_time(philo))
-			return (handle_status(DEAD, philo));
-		usleep(100);
-	}
-	if (cmp_time(philo))
-		return (handle_status(DEAD, philo));
 	return (0);
 }

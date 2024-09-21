@@ -6,7 +6,7 @@
 /*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 14:35:18 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/15 16:36:12 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/21 18:41:45 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ static int	check_full(t_philo *philo);
 void	monitoring(t_philo *philo)
 {
 	int			i;
-	t_ulong		tmp;
+	t_llong		tmp;
 	t_status	cs;
 
 	tmp = get_timestamp(philo);
@@ -27,7 +27,7 @@ void	monitoring(t_philo *philo)
 		while (++i < philo->stats->philo_num)
 		{
 			cs = get_status(philo + i);
-			if (cmp_time(philo + i) && cs != EATING && cs != FULL)
+			if (cmp_time(philo + i) && cs != FULL)
 			{
 				pthread_mutex_lock(philo->write);
 				set_status(philo + i, DEAD);
@@ -44,11 +44,11 @@ void	monitoring(t_philo *philo)
 
 int	cmp_time(t_philo *philo)
 {
-	t_ulong	tmp;
-	t_ulong	ttd;
+	t_llong	tmp;
+	t_llong	ttd;
 
 	tmp = (gettime() - get_lastmeal(philo));
-	ttd = (t_ulong)philo->stats->ttd;
+	ttd = (t_llong)philo->stats->ttd;
 	return (ttd < tmp);
 }
 

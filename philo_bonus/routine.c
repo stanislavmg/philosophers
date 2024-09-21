@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sgoremyk <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 15:03:02 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/16 13:18:19 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/21 19:10:41 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ int	handle_status(t_status status, t_philo *philo)
 
 static void	print_action(int status, const t_philo *philo)
 {
-	t_ulong	t;
+	t_llong	t;
 
 	t = gettime() - philo->timestamp;
 	if (DEAD == status)
@@ -122,7 +122,6 @@ void	handle_one(t_philo *philo)
 	sem_wait(philo->forks);
 	handle_status(FORK, philo);
 	ft_usleep(philo->stats->ttd, philo);
-	handle_status(DEAD, philo);
 	sem_post(philo->forks);
 	sem_close(philo->forks);
 	exit(0);

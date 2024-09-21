@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sgoremyk <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 15:02:55 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/16 12:11:26 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/21 17:53:19 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ static t_philo	*init_philo(t_stats *st)
 	t_philo	*philo;
 
 	i = -1;
-	if (!st)
+	if (!st || !st->philo_num)
 		return (NULL);
 	philo = (t_philo *)malloc(sizeof(t_philo) * st->philo_num);
 	if (!philo)
@@ -52,16 +52,38 @@ static t_philo	*init_philo(t_stats *st)
 	}
 	return (philo);
 }
+int	check_stats(t_stats *stats);
 
 int	init(char **argv, t_philo **philo)
 {
 	t_stats	*st;
 
 	st = init_stats(argv);
+	if (check_stats(st))
+	{
+		free(st);
+		return (1);
+	}
 	*philo = init_philo(st);
 	if (!philo)
 	{
 		free(st);
+		return (1);
+	}
+	return (0);
+}
+
+int	check_stats(t_stats *stats)
+{
+	if (stats->eat_limit == 0 || stats->philo_num == 0)
+		return (1);
+	if (stats->ttd < 0
+		|| stats->tte < 0
+		|| stats->tts < 0
+		|| stats->philo_num < 0
+		|| (stats->eat_limit < 0 && stats->eat_limit != UNDEFINED))
+	{
+		printf("Incorrect arguments\n");
 		return (1);
 	}
 	return (0);

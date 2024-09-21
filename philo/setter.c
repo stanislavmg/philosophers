@@ -6,13 +6,13 @@
 /*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 14:35:25 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/14 14:50:11 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/21 16:58:55 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-void	set_time(pthread_mutex_t *lock, t_ulong *time, t_ulong value)
+void	set_time(pthread_mutex_t *lock, t_llong *time, t_llong value)
 {
 	pthread_mutex_lock(lock);
 	*time = value;
