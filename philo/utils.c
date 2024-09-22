@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: sgoremyk <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 14:35:37 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/21 18:45:52 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/22 15:35:51 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,6 @@ void	*free_data(t_data *data)
 	if (data->stats)
 	{
 		pthread_mutex_destroy(data->write);
-		pthread_mutex_destroy(data->stats->lock);
 		while (++i < data->stats->philo_num)
 		{
 			pthread_mutex_destroy(data->locks + i);

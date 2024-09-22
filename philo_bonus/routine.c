@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   routine.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: sgoremyk <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 15:03:02 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/21 19:10:41 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/22 15:55:26 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,7 +117,8 @@ void	*start_routine(t_philo	*philo)
 void	handle_one(t_philo *philo)
 {
 	philo->forks = sem_open(SEM_FORK, 0);
-	if (philo->forks == SEM_FAILED)
+	philo->lock = sem_open(SEM_LOCK, 0);
+	if (philo->forks == SEM_FAILED || philo->lock == SEM_FAILED)
 		exit (2);
 	sem_wait(philo->forks);
 	handle_status(FORK, philo);

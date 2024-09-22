@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   philo_bonus.h                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: sgoremyk <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 15:02:50 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/21 16:58:55 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/22 15:50:09 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,8 @@
 # include <stdio.h>
 # include <unistd.h>
 # include <sys/time.h>
+# include <sys/wait.h>
+# include <fcntl.h>
 # include <signal.h>
 
 typedef long long	t_llong;

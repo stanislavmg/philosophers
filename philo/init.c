@@ -3,16 +3,25 @@
 /*                                                        :::      ::::::::   */
 /*   init.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: sgoremyk <sgoremyk@student.42.fr>          +#+  +:+       +#+        */
+/*   By: sgoremyk <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/09/14 14:35:09 by sgoremyk          #+#    #+#             */
-/*   Updated: 2024/09/21 16:58:55 by sgoremyk         ###   ########.fr       */
+/*   Updated: 2024/09/22 15:42:36 by sgoremyk         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
 static void	fill_stats(t_stats *stats, char **argv);
+
+void	free_stats(t_stats *st)
+{
+	if (!st)
+		return ;
+	pthread_mutex_destroy(st->lock);
+	free(st->lock);
+	free(st);
+}
 
 t_stats	*init_stats(int argc, char **argv)
 {
@@ -29,7 +38,7 @@ t_stats	*init_stats(int argc, char **argv)
 	fill_stats(stats, argv);
 	if (check_stats(stats))
 	{
-		free(stats);
+		free_stats(stats);
 		return (NULL);
 	}
 	return (stats);

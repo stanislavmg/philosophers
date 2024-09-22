@@ -1,6 +1,6 @@
 NAME = philo_bonus
 INCLUDE = philo_bonus.h
-CFLAGS = -Wall -Wextra -Werror
+CFLAGS = -Wall -Wextra -Werror -g
 SRC = main.c init.c string.c utils.c routine.c
 OBJ = $(SRC:%.c=%.o)
 
